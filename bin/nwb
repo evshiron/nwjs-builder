@@ -141,7 +141,8 @@ const NwBuilderRun = (path, command) => {
             version: options.version,
             platform: options.platform,
             arch: options.arch,
-            flavor: options.flavor
+            flavor: options.flavor,
+            showProgressbar: true
         }, (err, fromCache, path) => cb(err, fromCache, path));
 
         if(err) {
