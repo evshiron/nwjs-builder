@@ -11,8 +11,43 @@ const DecompressZip = require('decompress-zip');
 
 const Flow = require('node-flow');
 
+const { GetTarget } = require('nwjs-download');
+
 const DIR_CACHES = join(dirname(module.filename), 'caches');
 mkdirsSync(DIR_CACHES);
+
+const GetExecutable = (dir, target) => {
+
+    switch(target) {
+    case 'win32-ia32':
+    case 'win32-x64':
+    case 'linux-ia32':
+    case 'linux-x64':
+    case 'osx-ia32':
+    case 'osx-x64':
+        break;
+    default:
+        target = GetTarget(process.platform, process.arch);
+        break;
+    }
+
+    switch(target) {
+    case 'win32-ia32':
+    case 'win32-x64':
+        return join(dir, 'nwjs.exe');
+    case 'linux-ia32':
+    case 'linux-x64':
+        return join(dir, 'nw');
+    case 'osx-ia32':
+    case 'osx-x64':
+        return join(dir, 'nwjs.app/Contents/MacOS/nwjs');
+    default:
+        // FIXME: Application exits sliently.
+        //throw new Error('ERROR_WHAT_THE_FUCK');
+        return null;
+    }
+
+};
 
 const ExtractZip = (path, destination, callback) => {
 
@@ -68,5 +103,6 @@ const ExtractBinary = (path, callback) => {
 };
 
 module.exports = {
+    GetExecutable,
     ExtractBinary
 };
