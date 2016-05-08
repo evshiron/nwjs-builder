@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "nwb": "./bin/nwb"
+    "nwb": "./bin/nwb",
+    "nwbuild": "./bin/nwbuild"
   },
   "repository": {
     "type": "git",
