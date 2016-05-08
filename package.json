@@ -21,6 +21,9 @@
   "homepage": "https://github.com/evshiron/nwjs-builder#readme",
   "dependencies": {
     "commander": "^2.9.0",
-    "nwjs-download": "github:evshiron/nwjs-download"
+    "decompress-zip": "^0.3.0",
+    "fs-extra": "^0.30.0",
+    "nwjs-download": "github:evshiron/nwjs-download",
+    "tar-fs": "^1.12.0"
   }
 }
