@@ -16,30 +16,14 @@ const { GetTarget } = require('nwjs-download');
 const DIR_CACHES = join(dirname(module.filename), 'caches');
 mkdirsSync(DIR_CACHES);
 
-const GetExecutable = (dir, target) => {
+const GetExecutable = (dir, platform) => {
 
-    switch(target) {
-    case 'win32-ia32':
-    case 'win32-x64':
-    case 'linux-ia32':
-    case 'linux-x64':
-    case 'osx-ia32':
-    case 'osx-x64':
-        break;
-    default:
-        target = GetTarget(process.platform, process.arch);
-        break;
-    }
-
-    switch(target) {
-    case 'win32-ia32':
-    case 'win32-x64':
+    switch(platform) {
+    case 'win32':
         return join(dir, 'nwjs.exe');
-    case 'linux-ia32':
-    case 'linux-x64':
+    case 'linux':
         return join(dir, 'nw');
-    case 'osx-ia32':
-    case 'osx-x64':
+    case 'darwin':
         return join(dir, 'nwjs.app/Contents/MacOS/nwjs');
     default:
         // FIXME: Application exits sliently.
