@@ -1,0 +1,26 @@
+{
+  "name": "nwjs-builder",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "nwb": "./bin/nwb"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evshiron/nwjs-builder.git"
+  },
+  "author": "evshiron",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evshiron/nwjs-builder/issues"
+  },
+  "homepage": "https://github.com/evshiron/nwjs-builder#readme",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "nwjs-download": "github:evshiron/nwjs-download"
+  }
+}

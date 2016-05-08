@@ -1,0 +1,170 @@
+#!/usr/bin/env node --harmony-destructuring --harmony-rest-parameters
+
+'use strict';
+
+const commander = require('commander');
+
+const Flow = require('node-flow');
+
+const {
+    GetVersionList, GetLatestVersion, GetStableVersion, DownloadBinary
+} = require('nwjs-download');
+
+commander.version(require('../package.json').version);
+
+commander.command('*')
+.action(() => commander.help());
+
+commander.command('nwbuild [path]')
+.option('-v,--version <version>', 'The nw version, eg. 0.8.4')
+.option('-p,--platforms <platforms>', 'Platforms to build, comma-sperated, can be: win32,win64,osx32,osx64,linux32,linux64')
+.option('-r,--run', 'Runs NW.js for the current platform')
+//.option('-o,--buildDir', 'The build folder')
+//.option('-f,--forceDownload', 'Force download of NW.js')
+//.option('--cacheDir', 'The cache folder')
+//.option('--quiet', 'Disables logging')
+.action((path, command) => {
+
+    Flow(function*(cb) {
+
+        const options = {
+            version: null,
+            flavor: null,
+            targets: [],
+            path: '.'
+        };
+
+        var [err, versions] = yield GetVersionList((err, versions) => cb(err, versions));
+
+        if(err) {
+            console.error(err);
+            return;
+        }
+
+        // FIXME: commander has a method named "version" as well.
+        if(command.version && typeof command.version == 'string') {
+
+            let [version, flavor] = ((versions, version) => {
+
+                for(let it of versions) {
+                    for(let jt of it.flavors) {
+
+                        let pattern = it.version + (jt == 'normal' ? '' : '-' + jt);
+
+                        if('v' + version == pattern || version == pattern) {
+
+                            return [it, jt];
+
+                        }
+
+                    }
+                }
+
+                return [null, null];
+
+            })(versions, command.version);
+
+            if(!version) {
+
+                console.error('ERROR_VERSION_NOT_FOUND');
+                console.error('version:', command.version);
+                console.error('versions:', versions.map((version) => version.version));
+
+                return;
+
+            }
+
+            options.version = version.version;
+            options.flavor = flavor;
+
+        }
+        else {
+
+            let [err, version] = yield GetLatestVersion((err, version) => cb(err, version));
+
+            if(err) {
+                console.error(err);
+                return;
+            }
+
+            options.version = version.version;
+
+        }
+
+        if(command.platforms) {
+
+            let parts = command.platforms.split(',');
+
+            for(let platform of parts) {
+
+                switch(platform) {
+                case 'win32':
+                    options.targets.push(['win', 'x86']);
+                    break;
+                case 'win64':
+                    options.targets.push(['win', 'x64']);
+                    break;
+                case 'linux32':
+                    options.targets.push(['linux', 'x86']);
+                    break;
+                case 'linux64':
+                    options.targets.push(['linux', 'x64']);
+                    break;
+                case 'osx32':
+                    options.targets.push(['osx', 'x86']);
+                    break;
+                case 'osx64':
+                    options.targets.push(['osx', 'x64']);
+                    break;
+                default:
+                    console.warn('WARN_PLATFORM_UNRECOGNIZED');
+                    console.warn('platform:', platform);
+                    break;
+                }
+
+            }
+
+        }
+        else {
+
+            options.targets.push([process.platform, process.arch]);
+
+        }
+
+        console.log(options);
+
+        for(let target of options.targets) {
+
+            let [platform, arch] = target;
+
+            let params = {
+                version: options.version,
+                platform: platform,
+                arch: arch,
+                flavor: options.flavor,
+                showProgressbar: true
+            };
+
+            let [err, fromCache, path] = yield DownloadBinary(params, (err, fromCache, path) => cb(err, fromCache, path));
+
+            if(err) {
+                console.error(err);
+                console.error(params);
+                return;
+            }
+
+            // Fix ProgressBar output.
+            console.log();
+            console.log(fromCache ? 'Cached:' : 'Downloaded:', path);
+
+        }
+
+    });
+
+});
+
+if(process.argv.length <= 2) {
+    commander.help();
+}
+
+commander.parse(process.argv);
