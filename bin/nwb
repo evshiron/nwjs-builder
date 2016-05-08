@@ -86,8 +86,8 @@ const LaunchExecutable = (executable, path, callback) => {
 
     if(!cp) return callback('ERROR_LAUNCH_FAILED');
 
-    cp.stdout.on('data', console.log);
-    cp.stderr.on('data', console.error);
+    cp.stdout.on('data', (data) => console.log(data.toString()));
+    cp.stderr.on('data', (data) => console.error(data.toString()));
 
     cp.on('close', (code) => callback(null, code));
 
