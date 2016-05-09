@@ -204,6 +204,71 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
 };
 
+const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
+
+    Flow(function*(cb) {
+
+        var [err, manifest] = yield readJson(join(path, 'package.json'), (err, json) => cb(err, json));
+
+        if(err) {
+            return callback(err);
+        }
+
+        const name = manifest.name + '-' + target;
+        const buildDir = join(dirname(path), name);
+
+        console.log('Create build directory:', buildDir);
+
+        var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Copy binary:', binaryDir);
+
+        var err = yield copy(binaryDir, buildDir, {}, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Compress application:', 'app.nw');
+
+        var [err, nwFile] = yield ZipDir(path, [], join(buildDir, 'app.nw'), (err, destination) => cb(err, destination));
+
+        if(err) {
+            return callback(err);
+        }
+
+        const executable = GetExecutable(buildDir, target);
+
+        console.log('Combine executable:', executable);
+
+        var err = yield CombineExecutable(executable, nwFile, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        const newName = manifest.name;
+
+        console.log('Rename application:', newName);
+
+        var err = yield rename(join(buildDir, 'nw'), join(buildDir, newName), (err) => cb(err));
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Done building.');
+
+        callback(null, resolve(buildDir));
+
+    });
+
+};
+
 const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
     Flow(function*(cb) {
@@ -431,7 +496,20 @@ const NwBuilderBuild = (path, command) => {
 
                 break;
             case 'linux':
-                console.error('ERROR_UNIMPLEMENTED');
+
+                {
+
+                    let [err, path] = yield BuildLinuxBinary(options.path, binaryDir, GetTarget(platform, arch), {}, (err, path) => cb(err, path));
+
+                    if(err) {
+                        console.error(err);
+                        return;
+                    }
+
+                    console.log(`${ GetTarget(platform, arch) } build: ${ path },`);
+
+                }
+
                 return;
             case 'darwin':
 
