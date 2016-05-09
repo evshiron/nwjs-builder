@@ -152,7 +152,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
         const name = manifest.name + '-' + target;
         const buildDir = join(dirname(path), name);
 
-        console.log('Create build directory.');
+        console.log('Create build directory:', buildDir);
 
         var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
 
@@ -160,7 +160,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Copy binary.');
+        console.log('Copy binary:', binaryDir);
 
         var err = yield copy(binaryDir, buildDir, {}, cb);
 
@@ -168,7 +168,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Compress application.');
+        console.log('Compress application:', 'app.nw');
 
         var [err, nwFile] = yield ZipDir(path, [], join(buildDir, 'app.nw'), (err, destination) => cb(err, destination));
 
@@ -176,9 +176,9 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Combine executable.');
-
         const executable = GetExecutable(buildDir, target);
+
+        console.log('Combine executable:', executable);
 
         var err = yield CombineExecutable(executable, nwFile, cb);
 
@@ -186,9 +186,11 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Rename application.');
+        const newName = manifest.name + '.exe';
 
-        var err = yield rename(join(buildDir, 'nw.exe'), join(buildDir, manifest.name + '.exe'), (err) => cb(err));
+        console.log('Rename application:', newName);
+
+        var err = yield rename(join(buildDir, 'nw.exe'), join(buildDir, newName), (err) => cb(err));
 
         if(err) {
             return callback(err);
@@ -215,7 +217,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
         const name = manifest.name + '-' + target;
         const buildDir = join(dirname(path), name);
 
-        console.log('Create build directory.');
+        console.log('Create build directory:', buildDir);
 
         var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
 
@@ -223,7 +225,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Copy binary.');
+        console.log('Copy binary from:', binaryDir);
 
         var err = yield copy(binaryDir, buildDir, {
             filter: (() => {
@@ -241,7 +243,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Copy application.');
+        console.log('Copy application from:', path);
 
         var err = yield copy(path, join(buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), {
             filter: (() => {
@@ -259,9 +261,9 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Modify plist.');
-
         const infoFile = join(buildDir, 'nwjs.app', 'Contents', 'Info.plist');
+
+        console.log('Modify plist:', infoFile);
 
         var [err, pl] = yield readFile(infoFile, {
             encoding: 'utf-8'
@@ -291,9 +293,11 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
             return callback(err);
         }
 
-        console.log('Rename application.');
+        const newName = manifest.name + '.app';
 
-        var err = yield rename(join(buildDir, 'nwjs.app'), join(buildDir, manifest.name + '.app'), (err) => cb(err));
+        console.log('Rename application:', newName);
+
+        var err = yield rename(join(buildDir, 'nwjs.app'), join(buildDir, newName), (err) => cb(err));
 
         if(err) {
             return callback(err);
