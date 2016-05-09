@@ -4,6 +4,16 @@ A command line utility for building nw.js applications, compatible with `nwjs/nw
 
 node.js 4.x+ is required.
 
+## Features
+
+* Use `http://nwjs.io/versions.json` (powered by [evshiron/nwjs-download](https://github.com/evshiron/nwjs-download))
+* Use ECMAScript 6 (in my opinion)
+* Support
+  * All major versions (listed in `versions.json`)
+  * All platforms (win32, linux, darwin)
+  * All flavors (normal, sdk, nacl, macappstore)
+* Active
+
 ## Install
 
 ```shell
@@ -33,7 +43,9 @@ $ nwb nwbuild -v 0.14.4-sdk -p win32,osx64 ./build/
 
 ## Development
 
-This project is still in early stage and currently lacks building for Linux support (which should be very same as for Windows but I don't have a Linux VM so...).
+This project is still in __early stage__, although everything should just work.
+
+Welcome to try it out, but __use it on your own risk when used in production__.
 
 PRs and issues are appreciated.
 
