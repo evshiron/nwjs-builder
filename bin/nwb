@@ -3,7 +3,7 @@
 'use strict';
 
 const { dirname, join, resolve } = require('path');
-const { readFile, writeFile, rename } = require('fs');
+const { readFile, writeFile, createWriteStream, createReadStream, rename } = require('fs');
 const { readJson, emptyDir, copy } = require('fs-extra');
 const { spawn } = require('child_process');
 
@@ -14,7 +14,7 @@ const plist = require('plist');
 const Flow = require('node-flow');
 
 const {
-    GetTarget, GetVersionList, GetLatestVersion, GetStableVersion, DownloadBinary
+    GetTarget, GetPlatform, GetVersionList, GetLatestVersion, GetStableVersion, DownloadBinary
 } = require('nwjs-download');
 
 const {
@@ -123,6 +123,85 @@ const DownloadAndExtractBinary = ({
 
 };
 
+const CombineExecutable = (executable, nwFile, callback) => {
+
+    const nwStream = createReadStream(nwFile);
+    const stream = createWriteStream(executable, {
+        flags: 'a'
+    });
+
+    nwStream.on('error', (err) => callback(err));
+    stream.on('error', (err) => callback(err));
+
+    nwStream.on('end', () => callback(null));
+
+    nwStream.pipe(stream);
+
+};
+
+const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
+
+    Flow(function*(cb) {
+
+        var [err, manifest] = yield readJson(join(path, 'package.json'), (err, json) => cb(err, json));
+
+        if(err) {
+            return callback(err);
+        }
+
+        const name = manifest.name + '-' + target;
+        const buildDir = join(dirname(path), name);
+
+        console.log('Create build directory.');
+
+        var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Copy binary.');
+
+        var err = yield copy(binaryDir, buildDir, {}, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Compress application.');
+
+        var [err, nwFile] = yield ZipDir(path, [], join(buildDir, 'app.nw'), (err, destination) => cb(err, destination));
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Combine executable.');
+
+        const executable = GetExecutable(buildDir, target);
+
+        var err = yield CombineExecutable(executable, nwFile, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Rename application.');
+
+        var err = yield rename(join(buildDir, 'nw.exe'), join(buildDir, manifest.name + '.exe'), (err) => cb(err));
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Done building.');
+
+        callback(null, resolve(buildDir));
+
+    });
+
+};
+
 const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
     Flow(function*(cb) {
@@ -134,7 +213,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
         }
 
         const name = manifest.name + '-' + target;
-        const buildDir = join(path, name);
+        const buildDir = join(dirname(path), name);
 
         console.log('Create build directory.');
 
@@ -243,8 +322,134 @@ const LaunchExecutable = (executable, path, callback) => {
 
 const NwBuilderBuild = (path, command) => {
 
-    console.warn('WARN_UNDER_CONSTRUCTION');
-    return;
+    Flow(function*(cb) {
+
+        const options = {
+            version: null,
+            flavor: null,
+            targets: [],
+            path: null
+        };
+
+        var [err, version, flavor] = yield ParseNwBuilderVersion(command.version, (err, version, flavor) => cb(err, version, flavor));
+
+        if(err) {
+            console.error(err);
+            return;
+        }
+
+        options.version = version;
+        options.flavor = flavor;
+
+        if(command.platforms) {
+
+            let parts = command.platforms.split(',');
+
+            for(let platform of parts) {
+
+                switch(platform) {
+                case 'win32':
+                    options.targets.push(['win', 'x86']);
+                    break;
+                case 'win64':
+                    options.targets.push(['win', 'x64']);
+                    break;
+                case 'linux32':
+                    options.targets.push(['linux', 'x86']);
+                    break;
+                case 'linux64':
+                    options.targets.push(['linux', 'x64']);
+                    break;
+                case 'osx32':
+                    options.targets.push(['osx', 'x86']);
+                    break;
+                case 'osx64':
+                    options.targets.push(['osx', 'x64']);
+                    break;
+                default:
+                    console.warn('WARN_PLATFORM_UNRECOGNIZED');
+                    console.warn('platform:', platform);
+                    break;
+                }
+
+            }
+
+        }
+        else {
+
+            options.targets.push([process.platform, process.arch]);
+
+        }
+
+        options.path = path ? path : '.';
+
+        console.log(options);
+
+        for(let target of options.targets) {
+
+            let [platform, arch] = target;
+
+            let params = {
+                version: options.version,
+                platform: platform,
+                arch: arch,
+                flavor: options.flavor,
+                showProgressbar: true
+            };
+
+            let [err, fromCache, fromDone, binaryDir] = yield DownloadAndExtractBinary({
+                version: options.version,
+                platform: platform,
+                arch: arch,
+                flavor: options.flavor
+            }, (err, fromCache, fromDone, binaryDir) => cb(err, fromCache, fromDone, binaryDir));
+
+            if(err) {
+                console.error(err);
+                return;
+            }
+
+            switch(GetPlatform(platform)) {
+            case 'win32':
+
+                {
+
+                    let [err, path] = yield BuildWin32Binary(options.path, binaryDir, GetTarget(platform, arch), {}, (err, path) => cb(err, path));
+
+                    if(err) {
+                        console.error(err);
+                        return;
+                    }
+
+                    console.log(`${ GetTarget(platform, arch) } build: ${ path },`);
+
+                }
+
+                break;
+            case 'linux':
+                console.error('ERROR_UNIMPLEMENTED');
+                return;
+            case 'darwin':
+
+                {
+
+                    let [err, path] = yield BuildDarwinBinary(options.path, binaryDir, GetTarget(platform, arch), {}, (err, path) => cb(err, path));
+
+                    if(err) {
+                        console.error(err);
+                        return;
+                    }
+
+                    console.log(`${ GetTarget(platform, arch) } build: ${ path },`);
+
+                }
+
+                break;
+            }
+
+        }
+
+    });
 
 };
 
@@ -290,29 +495,13 @@ const NwBuilderRun = (path, command) => {
             flavor: options.flavor
         }, (err, fromCache, fromDone, binaryDir) => cb(err, fromCache, fromDone, binaryDir));
 
-        // Test ZipDir.
-        /*
-        var [err, nwFile] = yield ZipDir(options.path, [], 'app.nw', (err, destination) => cb(err, destination));
-
         if(err) {
             console.error(err);
             return;
         }
-        */
-
-        // Test BuildDarwinBinary.
-        /*
-        var [err, buildDir] = yield BuildDarwinBinary(options.path, binaryDir, GetTarget(options.platform, options.arch), {}, (err, buildDir) => cb(err, buildDir));
-
-        if(err) {
-            console.error(err);
-            return;
-        }
-        */
 
         const executable = GetExecutable(binaryDir, options.platform);
 
-        //var [err, code] = yield LaunchExecutable(executable, nwFile, (err, code) => cb(err, code));
         var [err, code] = yield LaunchExecutable(executable, options.path, (err, code) => cb(err, code));
 
         if(err) {

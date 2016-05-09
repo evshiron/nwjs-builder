@@ -23,10 +23,16 @@ const GetExecutable = (binaryDir, platform) => {
 
     switch(platform) {
     case 'win32':
-        return join(binaryDir, 'nwjs.exe');
+    case 'win-ia32':
+    case 'win-x64':
+        return join(binaryDir, 'nw.exe');
     case 'linux':
+    case 'linux-ia32':
+    case 'linux-x64':
         return join(binaryDir, 'nw');
     case 'darwin':
+    case 'osx-ia32':
+    case 'osx-x64':
         return join(binaryDir, 'nwjs.app/Contents/MacOS/nwjs');
     default:
         // FIXME: Application exits sliently.
