@@ -16,6 +16,8 @@ const {
     GetExecutable, ExtractBinary
 } = require('../');
 
+const { ZipDir } = require('../lib/util');
+
 const MatchNwBuilderVersion = (versions, nwBuilderVersion) => {
 
     for(let version of versions) {
@@ -102,13 +104,13 @@ const DownloadAndExtractBinary = ({
 
             // Extract nw.js.
 
-            ExtractBinary(path, (err, fromDone, dir) => {
+            ExtractBinary(path, (err, fromDone, binaryDir) => {
 
                 if(err) {
                     return callback(err);
                 }
 
-                callback(err, fromCache, fromDone, dir);
+                callback(err, fromCache, fromDone, binaryDir);
 
             });
 
@@ -171,15 +173,26 @@ const NwBuilderRun = (path, command) => {
 
         console.log(options);
 
-        var [err, fromCache, fromDone, dir] = yield DownloadAndExtractBinary({
+        var [err, fromCache, fromDone, binaryDir] = yield DownloadAndExtractBinary({
             version: options.version,
             platform: options.platform,
             arch: options.arch,
             flavor: options.flavor
-        }, (err, fromCache, fromDone, dir) => cb(err, fromCache, fromDone, dir));
+        }, (err, fromCache, fromDone, binaryDir) => cb(err, fromCache, fromDone, binaryDir));
 
-        const executable = GetExecutable(dir, options.platform);
+        // Test only.
+        /*
+        var [err, nwFile] = yield ZipDir(options.path, [], 'app.nw', (err, destination) => cb(err, destination));
 
+        if(err) {
+            console.error(err);
+            return;
+        }
+        */
+
+        const executable = GetExecutable(binaryDir, options.platform);
+
+        //var [err, code] = yield LaunchExecutable(executable, nwFile, (err, code) => cb(err, code));
         var [err, code] = yield LaunchExecutable(executable, options.path, (err, code) => cb(err, code));
 
         if(err) {

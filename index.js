@@ -19,15 +19,15 @@ mkdirsSync(DIR_CACHES);
 
 const FILENAME_DONE = '.done';
 
-const GetExecutable = (dir, platform) => {
+const GetExecutable = (binaryDir, platform) => {
 
     switch(platform) {
     case 'win32':
-        return join(dir, 'nwjs.exe');
+        return join(binaryDir, 'nwjs.exe');
     case 'linux':
-        return join(dir, 'nw');
+        return join(binaryDir, 'nw');
     case 'darwin':
-        return join(dir, 'nwjs.app/Contents/MacOS/nwjs');
+        return join(binaryDir, 'nwjs.app/Contents/MacOS/nwjs');
     default:
         // FIXME: Application exits sliently.
         //throw new Error('ERROR_WHAT_THE_FUCK');
