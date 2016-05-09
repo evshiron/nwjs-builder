@@ -3,10 +3,13 @@
 'use strict';
 
 const { join, resolve } = require('path');
+const { readFile, writeFile } = require('fs');
 const { readJson, emptyDir, copy } = require('fs-extra');
 const { spawn } = require('child_process');
 
 const commander = require('commander');
+
+const plist = require('plist');
 
 const Flow = require('node-flow');
 
@@ -135,7 +138,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Create build directory.');
 
-        var err = yield emptyDir(buildDir, cb);
+        var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
 
         if(err) {
             return callback(err);
@@ -143,7 +146,17 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Copy binary.');
 
-        var err = yield copy(binaryDir, buildDir, cb);
+        var err = yield copy(binaryDir, buildDir, {
+            filter: (() => {
+
+                const REGEX_FILTER_I18N = /\/nwjs\.app\/Contents\/Resources\/[a-zA-Z0-9_]+\.lproj/;
+
+                return (path) => {
+                    return !REGEX_FILTER_I18N.test(path);
+                }
+
+            })()
+        }, cb);
 
         if(err) {
             return callback(err);
@@ -151,19 +164,49 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Copy application.');
 
-        const filter = (() => {
+        var err = yield copy(path, join(buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), {
+            filter: (() => {
 
-            const REGEX_FILTER = new RegExp(name);
+                const REGEX_FILTER_BUILDDIR = new RegExp(name);
 
-            return (path) => {
-                return !REGEX_FILTER.test(path);
+                return (path) => {
+                    return !REGEX_FILTER_BUILDDIR.test(path);
+                }
+
+            })()
+        }, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Modify plist.');
+
+        const infoFile = join(buildDir, 'nwjs.app', 'Contents', 'Info.plist');
+
+        var [err, pl] = yield readFile(infoFile, {
+            encoding: 'utf-8'
+        }, (err, data) => {
+
+            if(err) {
+                return cb(err);
             }
 
-        })();
+            cb(null, plist.parse(data.toString()));
 
-        var err = yield copy(path, join(buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), {
-            filter: filter
-        }, cb);
+        });
+
+        if(err) {
+            return callback(err);
+        }
+
+        pl['CFBundleDisplayName'] = manifest.name;
+        pl['CFBundleName'] = manifest.name;
+        pl['CFBundleVersion'] = manifest.version;
+        pl['CFBundleShortVersionString'] = manifest.version;
+        pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + manifest.name.toLowerCase();
+
+        var err = yield writeFile(infoFile, plist.build(pl), cb);
 
         if(err) {
             return callback(err);
