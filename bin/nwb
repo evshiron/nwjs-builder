@@ -198,7 +198,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
         console.log('Done building.');
 
-        callback(null, resolve(buildDir));
+        callback(null, buildDir);
 
     });
 
@@ -263,7 +263,7 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Done building.');
 
-        callback(null, resolve(buildDir));
+        callback(null, buildDir);
 
     });
 
@@ -370,7 +370,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Done building.');
 
-        callback(null, resolve(buildDir));
+        callback(null, buildDir);
 
     });
 
@@ -490,7 +490,7 @@ const NwBuilderBuild = (path, command) => {
                         return;
                     }
 
-                    console.log(`${ GetTarget(platform, arch) } build: ${ path },`);
+                    console.log(`${ GetTarget(platform, arch) } build: ${ resolve(path) }.`);
 
                 }
 
@@ -506,7 +506,7 @@ const NwBuilderBuild = (path, command) => {
                         return;
                     }
 
-                    console.log(`${ GetTarget(platform, arch) } build: ${ path },`);
+                    console.log(`${ GetTarget(platform, arch) } build: ${ resolve(path) }.`);
 
                 }
 
@@ -522,7 +522,7 @@ const NwBuilderBuild = (path, command) => {
                         return;
                     }
 
-                    console.log(`${ GetTarget(platform, arch) } build: ${ path },`);
+                    console.log(`${ GetTarget(platform, arch) } build: ${ resolve(path) }.`);
 
                 }
 
