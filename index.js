@@ -1,8 +1,9 @@
 
 'use strict';
 
+const { homedir } = require('os');
 const { dirname, basename, join } = require('path');
-const { exists, createReadStream } = require('fs');
+const { exists, createReadStream, mkdir } = require('fs');
 const { mkdirsSync } = require('fs-extra');
 
 const { createGunzip } = require('zlib');
@@ -13,8 +14,10 @@ const Flow = require('node-flow');
 
 const { GetTarget } = require('nwjs-download');
 
-const DIR_CACHES = join(dirname(module.filename), 'caches');
+const DIR_CACHES = join(homedir(), '.nwjs-builder', 'caches');
 mkdirsSync(DIR_CACHES);
+
+const FILENAME_DONE = '.done';
 
 const GetExecutable = (dir, platform) => {
 
@@ -68,21 +71,51 @@ const ExtractTarGz = (path, destination, callback) => {
 
 const ExtractBinary = (path, callback) => {
 
-    if(path.endsWith('.zip')) {
+    Flow(function*(cb) {
 
-        ExtractZip(path, join(DIR_CACHES, basename(path).slice(0, -4)), callback);
+        var destination = null;
+        var extract = null;
 
-    }
-    else if(path.endsWith('.tar.gz')) {
+        if(path.endsWith('.zip')) {
+            destination = join(DIR_CACHES, basename(path).slice(0, -4));
+            extract = ExtractZip;
+        }
+        else if(path.endsWith('.tar.gz')) {
+            destination = join(DIR_CACHES, basename(path).slice(0, -7));
+            extract = ExtractTarGz;
+        }
+        else {
+            return callback('ERROR_EXTENSION_NOT_SUPPORTED');
+        }
 
-        ExtractTarGz(path, join(DIR_CACHES, basename(path).slice(0, -7)), callback);
+        const done = join(destination, FILENAME_DONE);
 
-    }
-    else {
+        const doneExists = yield exists(done, cb);
 
-        return callback('ERROR_EXTENSION_NOT_SUPPORTED');
+        if(doneExists) {
+            return callback(null, true, destination);
+        }
+        else {
+            return extract(path, destination, (err, destination) => {
 
-    }
+                if(err) {
+                    return callback(err);
+                }
+
+                mkdir(done, (err) => {
+
+                    if(err) {
+                        return callback(err);
+                    }
+
+                    return callback(null, false, destination);
+
+                });
+
+            });
+        }
+
+    });
 
 };
 

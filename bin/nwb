@@ -152,7 +152,7 @@ const NwBuilderRun = (path, command) => {
 
         // Extract nw.js.
 
-        var [err, extractPath] = yield ExtractBinary(binaryPath, (err, extractPath) => cb(err, extractPath));
+        var [err, fromDone, extractPath] = yield ExtractBinary(binaryPath, (err, fromDone, extractPath) => cb(err, fromDone, extractPath));
 
         if(err) {
             console.error(err);
