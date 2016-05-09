@@ -80,6 +80,42 @@ const ParseNwBuilderVersion = (nwBuilderVersion, callback) => {
 
 };
 
+const DownloadAndExtractBinary = ({
+    version = null,
+    platform = null,
+    arch = null,
+    flavor = null
+}, callback) => {
+
+        // Download nw.js.
+
+        DownloadBinary({
+            version, platform, arch, flavor,
+            showProgressbar: true
+        }, (err, fromCache, path) => {
+
+            console.log();
+
+            if(err) {
+                return callback(err);
+            }
+
+            // Extract nw.js.
+
+            ExtractBinary(path, (err, fromDone, dir) => {
+
+                if(err) {
+                    return callback(err);
+                }
+
+                callback(err, fromCache, fromDone, dir);
+
+            });
+
+        });
+
+};
+
 const LaunchExecutable = (executable, path, callback) => {
 
     const cp = spawn(executable, [path]);
@@ -135,30 +171,14 @@ const NwBuilderRun = (path, command) => {
 
         console.log(options);
 
-        // Download nw.js.
-
-        var [err, fromCache, binaryPath] = yield DownloadBinary({
+        var [err, fromCache, fromDone, dir] = yield DownloadAndExtractBinary({
             version: options.version,
             platform: options.platform,
             arch: options.arch,
-            flavor: options.flavor,
-            showProgressbar: true
-        }, (err, fromCache, path) => cb(err, fromCache, path));
+            flavor: options.flavor
+        }, (err, fromCache, fromDone, dir) => cb(err, fromCache, fromDone, dir));
 
-        if(err) {
-            console.error(err);
-            return;
-        }
-
-        // Extract nw.js.
-
-        var [err, fromDone, extractPath] = yield ExtractBinary(binaryPath, (err, fromDone, extractPath) => cb(err, fromDone, extractPath));
-
-        if(err) {
-            console.error(err);
-        }
-
-        const executable = GetExecutable(extractPath, options.platform);
+        const executable = GetExecutable(dir, options.platform);
 
         var [err, code] = yield LaunchExecutable(executable, options.path, (err, code) => cb(err, code));
 
