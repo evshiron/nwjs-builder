@@ -2,8 +2,8 @@
 
 'use strict';
 
-const { join, resolve } = require('path');
-const { readFile, writeFile } = require('fs');
+const { dirname, join, resolve } = require('path');
+const { readFile, writeFile, rename } = require('fs');
 const { readJson, emptyDir, copy } = require('fs-extra');
 const { spawn } = require('child_process');
 
@@ -207,6 +207,14 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
         pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + manifest.name.toLowerCase();
 
         var err = yield writeFile(infoFile, plist.build(pl), cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Rename application.');
+
+        var err = yield rename(join(buildDir, 'nwjs.app'), join(buildDir, manifest.name + '.app'), (err) => cb(err));
 
         if(err) {
             return callback(err);
