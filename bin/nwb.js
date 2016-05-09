@@ -13,9 +13,7 @@ const plist = require('plist');
 
 const Flow = require('node-flow');
 
-const {
-    GetTarget, GetPlatform, GetVersionList, GetLatestVersion, GetStableVersion, DownloadBinary
-} = require('nwjs-download');
+const NWD = require('nwjs-download');
 
 const {
     GetExecutable, ExtractBinary
@@ -50,7 +48,7 @@ const ParseNwBuilderVersion = (nwBuilderVersion, callback) => {
         // FIXME: commander has a method named "version" as well.
         if(nwBuilderVersion && typeof nwBuilderVersion == 'string') {
 
-            let [err, versions] = yield GetVersionList((err, versions) => cb(err, versions));
+            let [err, versions] = yield NWD.GetVersionList((err, versions) => cb(err, versions));
 
             if(err) {
                 return callback(err);
@@ -73,7 +71,7 @@ const ParseNwBuilderVersion = (nwBuilderVersion, callback) => {
         }
         else {
 
-            let [err, version] = yield GetLatestVersion((err, version) => cb(err, version));
+            let [err, version] = yield NWD.GetLatestVersion((err, version) => cb(err, version));
 
             if(err) {
                 return callback(err);
@@ -96,7 +94,7 @@ const DownloadAndExtractBinary = ({
 
         // Download nw.js.
 
-        DownloadBinary({
+        NWD.DownloadBinary({
             version, platform, arch, flavor,
             showProgressbar: true
         }, (err, fromCache, path) => {
@@ -478,19 +476,19 @@ const NwBuilderBuild = (path, command) => {
                 return;
             }
 
-            switch(GetPlatform(platform)) {
+            switch(NWD.GetPlatform(platform)) {
             case 'win32':
 
                 {
 
-                    let [err, path] = yield BuildWin32Binary(options.path, binaryDir, GetTarget(platform, arch), {}, (err, path) => cb(err, path));
+                    let [err, path] = yield BuildWin32Binary(options.path, binaryDir, NWD.GetTarget(platform, arch), {}, (err, path) => cb(err, path));
 
                     if(err) {
                         console.error(err);
                         return;
                     }
 
-                    console.log(`${ GetTarget(platform, arch) } build: ${ resolve(path) }.`);
+                    console.log(`${ NWD.GetTarget(platform, arch) } build: ${ resolve(path) }.`);
 
                 }
 
@@ -499,14 +497,14 @@ const NwBuilderBuild = (path, command) => {
 
                 {
 
-                    let [err, path] = yield BuildLinuxBinary(options.path, binaryDir, GetTarget(platform, arch), {}, (err, path) => cb(err, path));
+                    let [err, path] = yield BuildLinuxBinary(options.path, binaryDir, NWD.GetTarget(platform, arch), {}, (err, path) => cb(err, path));
 
                     if(err) {
                         console.error(err);
                         return;
                     }
 
-                    console.log(`${ GetTarget(platform, arch) } build: ${ resolve(path) }.`);
+                    console.log(`${ NWD.GetTarget(platform, arch) } build: ${ resolve(path) }.`);
 
                 }
 
@@ -515,14 +513,14 @@ const NwBuilderBuild = (path, command) => {
 
                 {
 
-                    let [err, path] = yield BuildDarwinBinary(options.path, binaryDir, GetTarget(platform, arch), {}, (err, path) => cb(err, path));
+                    let [err, path] = yield BuildDarwinBinary(options.path, binaryDir, NWD.GetTarget(platform, arch), {}, (err, path) => cb(err, path));
 
                     if(err) {
                         console.error(err);
                         return;
                     }
 
-                    console.log(`${ GetTarget(platform, arch) } build: ${ resolve(path) }.`);
+                    console.log(`${ NWD.GetTarget(platform, arch) } build: ${ resolve(path) }.`);
 
                 }
 
@@ -601,6 +599,18 @@ commander.version(require('../package.json').version);
 
 commander.command('*')
 .action(() => commander.help());
+
+commander.command('list')
+.action(NWD.commands.list);
+
+commander.command('latest')
+.action(NWD.commands.latest);
+
+commander.command('stable')
+.action(NWD.commands.stable);
+
+commander.command('download')
+.action(NWD.commands.download);
 
 commander.command('nwbuild [path]')
 .option('-v,--version <version>', 'The nw version, eg. 0.8.4')
