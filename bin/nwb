@@ -2,6 +2,8 @@
 
 'use strict';
 
+const { join, resolve } = require('path');
+const { readJson, emptyDir, copy } = require('fs-extra');
 const { spawn } = require('child_process');
 
 const commander = require('commander');
@@ -9,7 +11,7 @@ const commander = require('commander');
 const Flow = require('node-flow');
 
 const {
-    GetVersionList, GetLatestVersion, GetStableVersion, DownloadBinary
+    GetTarget, GetVersionList, GetLatestVersion, GetStableVersion, DownloadBinary
 } = require('nwjs-download');
 
 const {
@@ -118,6 +120,63 @@ const DownloadAndExtractBinary = ({
 
 };
 
+const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
+
+    Flow(function*(cb) {
+
+        var [err, manifest] = yield readJson(join(path, 'package.json'), (err, json) => cb(err, json));
+
+        if(err) {
+            return callback(err);
+        }
+
+        const name = manifest.name + '-' + target;
+        const buildDir = join(path, name);
+
+        console.log('Create build directory.');
+
+        var err = yield emptyDir(buildDir, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Copy binary.');
+
+        var err = yield copy(binaryDir, buildDir, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Copy application.');
+
+        const filter = (() => {
+
+            const REGEX_FILTER = new RegExp(name);
+
+            return (path) => {
+                return !REGEX_FILTER.test(path);
+            }
+
+        })();
+
+        var err = yield copy(path, join(buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), {
+            filter: filter
+        }, cb);
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log('Done building.');
+
+        callback(null, resolve(buildDir));
+
+    });
+
+};
+
 const LaunchExecutable = (executable, path, callback) => {
 
     const cp = spawn(executable, [path]);
@@ -180,9 +239,19 @@ const NwBuilderRun = (path, command) => {
             flavor: options.flavor
         }, (err, fromCache, fromDone, binaryDir) => cb(err, fromCache, fromDone, binaryDir));
 
-        // Test only.
+        // Test ZipDir.
         /*
         var [err, nwFile] = yield ZipDir(options.path, [], 'app.nw', (err, destination) => cb(err, destination));
+
+        if(err) {
+            console.error(err);
+            return;
+        }
+        */
+
+        // Test BuildDarwinBinary.
+        /*
+        var [err, buildDir] = yield BuildDarwinBinary(options.path, binaryDir, GetTarget(options.platform, options.arch), {}, (err, buildDir) => cb(err, buildDir));
 
         if(err) {
             console.error(err);
