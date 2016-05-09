@@ -24,6 +24,7 @@
     "commander": "^2.9.0",
     "decompress-zip": "^0.3.0",
     "fs-extra": "^0.30.0",
+    "node-flow": "github:evshiron/node-flow",
     "nwjs-download": "github:evshiron/nwjs-download",
     "plist": "^1.2.0",
     "tar-fs": "^1.12.0"
