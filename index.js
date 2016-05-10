@@ -66,7 +66,7 @@ const ExtractBinary = (path, callback) => {
 
         const done = join(destination, FILENAME_DONE);
 
-        const doneExists = yield exists(done, cb);
+        const doneExists = yield exists(done, cb.single);
 
         if(doneExists) {
             return callback(null, true, destination);
@@ -135,7 +135,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
     Flow(function*(cb) {
 
-        var [err, manifest] = yield readJson(join(path, 'package.json'), (err, json) => cb(err, json));
+        var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -146,7 +146,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
         console.log('Create build directory:', buildDir);
 
-        var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
+        var [err,] = yield emptyDir(buildDir, cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -154,7 +154,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
         console.log('Copy binary from:', binaryDir);
 
-        var err = yield copy(binaryDir, buildDir, {}, cb);
+        var err = yield copy(binaryDir, buildDir, {}, cb.single);
 
         if(err) {
             return callback(err);
@@ -162,7 +162,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
         console.log('Compress application:', 'app.nw');
 
-        var [err, nwFile] = yield ZipDirectory(path, [], join(buildDir, 'app.nw'), (err, destination) => cb(err, destination));
+        var [err, nwFile] = yield ZipDirectory(path, [], join(buildDir, 'app.nw'), cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -172,7 +172,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
         console.log('Combine executable:', executable);
 
-        var err = yield CombineExecutable(executable, nwFile, cb);
+        var err = yield CombineExecutable(executable, nwFile, cb.single);
 
         if(err) {
             return callback(err);
@@ -182,7 +182,7 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
         console.log('Rename application:', newName);
 
-        var err = yield rename(join(buildDir, 'nw.exe'), join(buildDir, newName), (err) => cb(err));
+        var err = yield rename(join(buildDir, 'nw.exe'), join(buildDir, newName), cb.single);
 
         if(err) {
             return callback(err);
@@ -200,7 +200,7 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
     Flow(function*(cb) {
 
-        var [err, manifest] = yield readJson(join(path, 'package.json'), (err, json) => cb(err, json));
+        var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -211,7 +211,7 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Create build directory:', buildDir);
 
-        var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
+        var [err, ] = yield emptyDir(buildDir, cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -219,7 +219,7 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Copy binary from:', binaryDir);
 
-        var err = yield copy(binaryDir, buildDir, {}, cb);
+        var err = yield copy(binaryDir, buildDir, {}, cb.single);
 
         if(err) {
             return callback(err);
@@ -227,7 +227,7 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Compress application:', 'app.nw');
 
-        var [err, nwFile] = yield ZipDirectory(path, [], join(buildDir, 'app.nw'), (err, destination) => cb(err, destination));
+        var [err, nwFile] = yield ZipDirectory(path, [], join(buildDir, 'app.nw'), cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -237,7 +237,7 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Combine executable:', executable);
 
-        var err = yield CombineExecutable(executable, nwFile, cb);
+        var err = yield CombineExecutable(executable, nwFile, cb.single);
 
         if(err) {
             return callback(err);
@@ -247,7 +247,7 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Rename application:', newName);
 
-        var err = yield rename(join(buildDir, 'nw'), join(buildDir, newName), (err) => cb(err));
+        var err = yield rename(join(buildDir, 'nw'), join(buildDir, newName), cb.single);
 
         if(err) {
             return callback(err);
@@ -265,7 +265,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
     Flow(function*(cb) {
 
-        var [err, manifest] = yield readJson(join(path, 'package.json'), (err, json) => cb(err, json));
+        var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -276,7 +276,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Create build directory:', buildDir);
 
-        var [err,] = yield emptyDir(buildDir, (err, path) => cb(err, path));
+        var [err, ] = yield emptyDir(buildDir, cb.expect(2));
 
         if(err) {
             return callback(err);
@@ -294,7 +294,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
                 }
 
             })()
-        }, cb);
+        }, cb.single);
 
         if(err) {
             return callback(err);
@@ -312,7 +312,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
                 }
 
             })()
-        }, cb);
+        }, cb.single);
 
         if(err) {
             return callback(err);
@@ -327,10 +327,10 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
         }, (err, data) => {
 
             if(err) {
-                return cb(err);
+                return cb.expect(2)(err);
             }
 
-            cb(null, plist.parse(data.toString()));
+            cb.expect(2)(null, plist.parse(data.toString()));
 
         });
 
@@ -344,7 +344,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
         pl['CFBundleShortVersionString'] = manifest.version;
         pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + manifest.name.toLowerCase();
 
-        var err = yield writeFile(infoFile, plist.build(pl), cb);
+        var err = yield writeFile(infoFile, plist.build(pl), cb.single);
 
         if(err) {
             return callback(err);
@@ -354,7 +354,7 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
         console.log('Rename application:', newName);
 
-        var err = yield rename(join(buildDir, 'nwjs.app'), join(buildDir, newName), (err) => cb(err));
+        var err = yield rename(join(buildDir, 'nwjs.app'), join(buildDir, newName), cb.single);
 
         if(err) {
             return callback(err);
