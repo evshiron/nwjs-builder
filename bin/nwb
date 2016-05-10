@@ -19,5 +19,6 @@ if(!cp) {
 }
 
 cp.on('close', function() {
+    console.log();
     console.log('Farewell!');
 });
