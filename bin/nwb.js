@@ -22,6 +22,9 @@ commander.command('latest')
 commander.command('stable')
 .action(NWD.commands.stable);
 
+commander.command('caches')
+.action(NWD.commands.caches);
+
 commander.command('download')
 .action(NWD.commands.download);
 
