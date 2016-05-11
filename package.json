@@ -13,6 +13,10 @@
     "type": "git",
     "url": "git+https://github.com/evshiron/nwjs-builder.git"
   },
+  "keywords": [
+    "nwjs",
+    "builder"
+  ],
   "author": "evshiron",
   "license": "MIT",
   "bugs": {
