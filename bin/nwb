@@ -3,7 +3,22 @@
 const path = require('path');
 const child_process = require('child_process');
 
-const params = ['--harmony-destructuring', '--harmony-rest-parameters'];
+const v = child_process.spawnSync('node', ['-v']);
+
+const params = [];
+
+const version = v.stdout.toString();
+
+if(version.startsWith('v4') || version.startsWith('v5')) {
+    params.push('--harmony-destructuring', '--harmony-rest-parameters');
+}
+else if(version.startsWith('v6')) {
+
+}
+else {
+    throw new Error('ERROR_NODE_VERSION_NOT_SUPPORTED');
+}
+
 params.push(path.join(path.dirname(module.filename), 'nwb.js'));
 Array.prototype.push.apply(params, process.argv.slice(2));
 
