@@ -146,13 +146,13 @@ const DownloadAndExtractFFmpeg = (destination, {
 
         // Extract ffmpeg.
 
-        ExtractZip(path, destination, (err, fromDone, destination) => {
+        ExtractZip(path, destination, (err, destination) => {
 
             if(err) {
                 return callback(err);
             }
 
-            callback(err, fromCache, fromDone, destination);
+            callback(err, fromCache, destination);
 
         });
 
