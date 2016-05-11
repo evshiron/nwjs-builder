@@ -25,6 +25,7 @@
     "debug": "^2.2.0",
     "decompress-zip": "^0.3.0",
     "fs-extra": "^0.30.0",
+    "glob": "^7.0.3",
     "node-flow": "github:evshiron/node-flow",
     "nwjs-download": "github:evshiron/nwjs-download",
     "plist": "^1.2.0",

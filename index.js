@@ -8,6 +8,8 @@ const { mkdirsSync, readJson, emptyDir, copy } = require('fs-extra');
 
 const { spawn } = require('child_process');
 
+const glob = require('glob');
+
 const plist = require('plist');
 
 const Flow = require('node-flow');
@@ -109,8 +111,6 @@ const DownloadAndExtractBinary = ({
         showProgressbar: true
     }, (err, fromCache, path) => {
 
-        console.log();
-
         if(err) {
             return callback(err);
         }
@@ -131,7 +131,42 @@ const DownloadAndExtractBinary = ({
 
 };
 
-const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
+const DownloadAndExtractFFmpeg = (destination, {
+    version = null,
+    platform = null,
+    arch = null
+}, callback) => {
+
+    // Download ffmpeg.
+
+    NWD.DownloadFFmpeg({
+        version, platform, arch,
+        showProgressbar: true
+    }, (err, fromCache, path) => {
+
+        if(err) {
+            return callback(err);
+        }
+
+        // Extract ffmpeg.
+
+        ExtractZip(path, destination, (err, fromDone, destination) => {
+
+            if(err) {
+                return callback(err);
+            }
+
+            callback(err, fromCache, fromDone, destination);
+
+        });
+
+    });
+
+};
+
+const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
+    withFFmpeg = false
+}, callback) => {
 
     Flow(function*(cb) {
 
@@ -140,6 +175,8 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
         if(err) {
             return callback(err);
         }
+
+        const target = NWD.GetTarget(platform, arch);
 
         const name = manifest.name + '-' + target;
         const buildDir = join(dirname(path), name);
@@ -158,6 +195,28 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
         if(err) {
             return callback(err);
+        }
+
+        if(withFFmpeg) {
+
+            console.log('Copy ffmpeg:', version);
+
+            let err = yield DownloadAndExtractFFmpeg(buildDir, {
+                version, platform, arch
+            }, (err, fromCache, fromDone, destination) => {
+
+                if(err) {
+                    return cb.single(err);
+                }
+
+                cb.single(null);
+
+            });
+
+            if(err) {
+                return callback(err);
+            }
+
         }
 
         console.log('Compress application:', 'app.nw');
@@ -196,7 +255,9 @@ const BuildWin32Binary = (path, binaryDir, target, options, callback) => {
 
 };
 
-const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
+const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
+    withFFmpeg = false
+}, callback) => {
 
     Flow(function*(cb) {
 
@@ -205,6 +266,8 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
         if(err) {
             return callback(err);
         }
+
+        const target = NWD.GetTarget(platform, arch);
 
         const name = manifest.name + '-' + target;
         const buildDir = join(dirname(path), name);
@@ -223,6 +286,30 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
         if(err) {
             return callback(err);
+        }
+
+        if(withFFmpeg) {
+
+            console.log('Copy ffmpeg:', version);
+
+            let err = yield DownloadAndExtractFFmpeg(buildDir, {
+                version, platform, arch
+            }, (err, fromCache, fromDone, destination) => {
+
+                if(err) {
+                    return cb.single(err);
+                }
+
+                copy(join(buildDir, 'libffmpeg.so'), join(buildDir, 'lib/libffmpeg.so'), {
+                    clobber: true
+                }, cb.single);
+
+            });
+
+            if(err) {
+                return callback(err);
+            }
+
         }
 
         console.log('Compress application:', 'app.nw');
@@ -261,7 +348,9 @@ const BuildLinuxBinary = (path, binaryDir, target, options, callback) => {
 
 };
 
-const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
+const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
+    withFFmpeg = false
+}, callback) => {
 
     Flow(function*(cb) {
 
@@ -270,6 +359,8 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
         if(err) {
             return callback(err);
         }
+
+        const target = NWD.GetTarget(platform, arch);
 
         const name = manifest.name + '-' + target;
         const buildDir = join(dirname(path), name);
@@ -298,6 +389,44 @@ const BuildDarwinBinary = (path, binaryDir, target, options, callback) => {
 
         if(err) {
             return callback(err);
+        }
+
+        if(withFFmpeg) {
+
+            console.log('Copy ffmpeg:', version);
+
+            let err = yield DownloadAndExtractFFmpeg(buildDir, {
+                version, platform, arch
+            }, (err, fromCache, fromDone, destination) => {
+
+                if(err) {
+                    return cb.single(err);
+                }
+
+                glob(join(buildDir, 'nwjs.app/**/libffmpeg.dylib'), {}, (err, files) => {
+
+                    if(err) {
+                        return cb.single(err);
+                    }
+
+                    if(files && files[0]) {
+
+                        console.log(join(buildDir, 'libffmpeg.dylib'), files[0]);
+
+                        copy(join(buildDir, 'libffmpeg.dylib'), files[0], {
+                            clobber: true
+                        }, cb.single);
+
+                    }
+
+                });
+
+            });
+
+            if(err) {
+                return callback(err);
+            }
+
         }
 
         console.log('Copy application from:', path);
