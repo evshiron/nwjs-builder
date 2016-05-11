@@ -2,21 +2,17 @@
 'use strict';
 
 const { homedir } = require('os');
-const { dirname, basename, join } = require('path');
-const { exists, writeFile, readFile, createReadStream, mkdir, rename } = require('fs');
-const { mkdirsSync, readJson, emptyDir, copy } = require('fs-extra');
+const { basename, join } = require('path');
+const { exists, mkdir } = require('fs');
+const { mkdirsSync } = require('fs-extra');
 
 const { spawn } = require('child_process');
-
-const glob = require('glob');
-
-const plist = require('plist');
 
 const Flow = require('node-flow');
 
 const NWD = require('nwjs-download');
 
-const { ZipDirectory, ExtractZip, ExtractTarGz, CombineExecutable } = require('./lib/util');
+const { ExtractZip, ExtractTarGz } = require('./lib/util');
 
 const DIR_CACHES = join(homedir(), '.nwjs-builder', 'caches');
 mkdirsSync(DIR_CACHES);
@@ -63,7 +59,7 @@ const ExtractBinary = (path, callback) => {
             extract = ExtractTarGz;
         }
         else {
-            return callback('ERROR_EXTENSION_NOT_SUPPORTED');
+            return callback(new Error('ERROR_EXTENSION_NOT_SUPPORTED'));
         }
 
         const done = join(destination, FILENAME_DONE);
@@ -164,344 +160,11 @@ const DownloadAndExtractFFmpeg = (destination, {
 
 };
 
-const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
-    withFFmpeg = false
-}, callback) => {
-
-    Flow(function*(cb) {
-
-        var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        const target = NWD.GetTarget(platform, arch);
-
-        const name = manifest.name + '-' + target;
-        const buildDir = join(dirname(path), name);
-
-        console.log('Create build directory:', buildDir);
-
-        var [err,] = yield emptyDir(buildDir, cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        console.log('Copy binary from:', binaryDir);
-
-        var err = yield copy(binaryDir, buildDir, {}, cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        if(withFFmpeg) {
-
-            console.log('Copy ffmpeg:', version);
-
-            let err = yield DownloadAndExtractFFmpeg(buildDir, {
-                version, platform, arch
-            }, (err, fromCache, fromDone, destination) => {
-
-                if(err) {
-                    return cb.single(err);
-                }
-
-                cb.single(null);
-
-            });
-
-            if(err) {
-                return callback(err);
-            }
-
-        }
-
-        console.log('Compress application:', 'app.nw');
-
-        var [err, nwFile] = yield ZipDirectory(path, [], join(buildDir, 'app.nw'), cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        const executable = GetExecutable(buildDir, target);
-
-        console.log('Combine executable:', executable);
-
-        var err = yield CombineExecutable(executable, nwFile, cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        const newName = manifest.name + '.exe';
-
-        console.log('Rename application:', newName);
-
-        var err = yield rename(join(buildDir, 'nw.exe'), join(buildDir, newName), cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        console.log('Done building.');
-
-        callback(null, buildDir);
-
-    });
-
-};
-
-const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
-    withFFmpeg = false
-}, callback) => {
-
-    Flow(function*(cb) {
-
-        var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        const target = NWD.GetTarget(platform, arch);
-
-        const name = manifest.name + '-' + target;
-        const buildDir = join(dirname(path), name);
-
-        console.log('Create build directory:', buildDir);
-
-        var [err, ] = yield emptyDir(buildDir, cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        console.log('Copy binary from:', binaryDir);
-
-        var err = yield copy(binaryDir, buildDir, {}, cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        if(withFFmpeg) {
-
-            console.log('Copy ffmpeg:', version);
-
-            let err = yield DownloadAndExtractFFmpeg(buildDir, {
-                version, platform, arch
-            }, (err, fromCache, fromDone, destination) => {
-
-                if(err) {
-                    return cb.single(err);
-                }
-
-                copy(join(buildDir, 'libffmpeg.so'), join(buildDir, 'lib/libffmpeg.so'), {
-                    clobber: true
-                }, cb.single);
-
-            });
-
-            if(err) {
-                return callback(err);
-            }
-
-        }
-
-        console.log('Compress application:', 'app.nw');
-
-        var [err, nwFile] = yield ZipDirectory(path, [], join(buildDir, 'app.nw'), cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        const executable = GetExecutable(buildDir, target);
-
-        console.log('Combine executable:', executable);
-
-        var err = yield CombineExecutable(executable, nwFile, cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        const newName = manifest.name;
-
-        console.log('Rename application:', newName);
-
-        var err = yield rename(join(buildDir, 'nw'), join(buildDir, newName), cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        console.log('Done building.');
-
-        callback(null, buildDir);
-
-    });
-
-};
-
-const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
-    withFFmpeg = false
-}, callback) => {
-
-    Flow(function*(cb) {
-
-        var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        const target = NWD.GetTarget(platform, arch);
-
-        const name = manifest.name + '-' + target;
-        const buildDir = join(dirname(path), name);
-
-        console.log('Create build directory:', buildDir);
-
-        var [err, ] = yield emptyDir(buildDir, cb.expect(2));
-
-        if(err) {
-            return callback(err);
-        }
-
-        console.log('Copy binary from:', binaryDir);
-
-        var err = yield copy(binaryDir, buildDir, {
-            filter: (() => {
-
-                const REGEX_FILTER_I18N = /\/nwjs\.app\/Contents\/Resources\/[a-zA-Z0-9_]+\.lproj/;
-
-                return (path) => {
-                    return !REGEX_FILTER_I18N.test(path);
-                }
-
-            })()
-        }, cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        if(withFFmpeg) {
-
-            console.log('Copy ffmpeg:', version);
-
-            let err = yield DownloadAndExtractFFmpeg(buildDir, {
-                version, platform, arch
-            }, (err, fromCache, fromDone, destination) => {
-
-                if(err) {
-                    return cb.single(err);
-                }
-
-                glob(join(buildDir, 'nwjs.app/**/libffmpeg.dylib'), {}, (err, files) => {
-
-                    if(err) {
-                        return cb.single(err);
-                    }
-
-                    if(files && files[0]) {
-
-                        console.log(join(buildDir, 'libffmpeg.dylib'), files[0]);
-
-                        copy(join(buildDir, 'libffmpeg.dylib'), files[0], {
-                            clobber: true
-                        }, cb.single);
-
-                    }
-
-                });
-
-            });
-
-            if(err) {
-                return callback(err);
-            }
-
-        }
-
-        console.log('Copy application from:', path);
-
-        var err = yield copy(path, join(buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), {
-            filter: (() => {
-
-                const REGEX_FILTER_BUILDDIR = new RegExp(name);
-
-                return (path) => {
-                    return !REGEX_FILTER_BUILDDIR.test(path);
-                }
-
-            })()
-        }, cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        const infoFile = join(buildDir, 'nwjs.app', 'Contents', 'Info.plist');
-
-        console.log('Modify plist:', infoFile);
-
-        var [err, pl] = yield readFile(infoFile, {
-            encoding: 'utf-8'
-        }, (err, data) => {
-
-            if(err) {
-                return cb.expect(2)(err);
-            }
-
-            cb.expect(2)(null, plist.parse(data.toString()));
-
-        });
-
-        if(err) {
-            return callback(err);
-        }
-
-        pl['CFBundleDisplayName'] = manifest.name;
-        pl['CFBundleName'] = manifest.name;
-        pl['CFBundleVersion'] = manifest.version;
-        pl['CFBundleShortVersionString'] = manifest.version;
-        pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + manifest.name.toLowerCase();
-
-        var err = yield writeFile(infoFile, plist.build(pl), cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        const newName = manifest.name + '.app';
-
-        console.log('Rename application:', newName);
-
-        var err = yield rename(join(buildDir, 'nwjs.app'), join(buildDir, newName), cb.single);
-
-        if(err) {
-            return callback(err);
-        }
-
-        console.log('Done building.');
-
-        callback(null, buildDir);
-
-    });
-
-};
-
 const LaunchExecutable = (executable, path, callback) => {
 
     const cp = spawn(executable, [path]);
 
-    if(!cp) return callback('ERROR_LAUNCH_FAILED');
+    if(!cp) return callback(new Error('ERROR_LAUNCH_FAILED'));
 
     cp.stdout.on('data', (data) => console.log(data.toString()));
     cp.stderr.on('data', (data) => console.error(data.toString()));
@@ -516,8 +179,9 @@ Object.assign(module.exports, {
     GetExecutable,
     ExtractBinary,
     DownloadAndExtractBinary,
-    BuildWin32Binary,
-    BuildLinuxBinary,
-    BuildDarwinBinary,
+    DownloadAndExtractFFmpeg,
+    BuildWin32Binary: require('./lib/build/win32'),
+    BuildLinuxBinary: require('./lib/build/linux'),
+    BuildDarwinBinary: require('./lib/build/darwin'),
     LaunchExecutable
 });
