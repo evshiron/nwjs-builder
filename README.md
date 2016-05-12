@@ -18,7 +18,7 @@ node.js 4.1+ is required.
   * Reinstall node modules for production
   * Replace icon, name, description and etc.
   * ...
-* Active
+* Actively maintained
 
 ## Install
 
