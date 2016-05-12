@@ -2,7 +2,7 @@
 
 A command line utility for building nw.js applications, compatible with `nwjs/nw-builder`, and maybe better.
 
-node.js 4.x+ is required.
+node.js 4.1+ is required.
 
 ## Features
 
