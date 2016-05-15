@@ -29,11 +29,17 @@ const cp = child_process.spawn('node', params, {
 });
 
 if(!cp) {
+
     console.error('ERROR_SPAWN_FAILED');
     process.exit(-1);
+
 }
 
-cp.on('close', function() {
+cp.on('close', function(code) {
+
     console.log();
     console.log('Farewell!');
+
+    process.exit(code);
+
 });
