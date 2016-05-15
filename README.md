@@ -1,13 +1,15 @@
-# nwjs-builder
+# nwjs-builder [![Travis CI](https://travis-ci.org/evshiron/nwjs-builder.svg)](https://travis-ci.org/evshiron/nwjs-builder) ![NPM Version](https://img.shields.io/npm/v/nwjs-builder.svg) ![NPM Downloads](https://img.shields.io/npm/dm/nwjs-builder.svg)
 
-A command line utility for building nw.js applications, compatible with `nwjs/nw-builder`, and maybe better.
+[![NPM](https://nodei.co/npm/nwjs-builder.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/nwjs-builder)
 
-node.js 4.1+ is required.
+> A command line utility for building nw.js applications, compatible with `nwjs/nw-builder`, and maybe better.
+>
+> node.js 4.1+ is required.
 
 ## Features
 
 * Use `http://nwjs.io/versions.json` (powered by [evshiron/nwjs-download](https://github.com/evshiron/nwjs-download))
-* Use ECMAScript 6
+* Use (limited) ECMAScript 6
 * Support
   * All major versions (listed in `versions.json`)
   * All platforms (win32, linux, darwin)
