@@ -69,6 +69,26 @@ $ nwb nwbuild -v 0.14.4-sdk -p win32,osx64 ./build/
 $ nwb nwbuild -v 0.14.4-sdk -p win32 --win-ico app.ico --mac-icns app.icns --side-by-side ./build/
 ```
 
+## Manifest Options
+
+The following manifest options are used to modify executable information, powered by `atom/node-rcedit`.
+
+```
+{
+    "nwjsBuilder": {
+        "copyright": "",
+        "internalName": "",
+        "fileVersion": "",
+        "comments": "",
+        "companyName": "",
+        "legalTrademarks": "",
+        "originalFilename": "",
+        "privateBuild": "",
+        "specialBuild": ""
+    }
+}
+```
+
 ## Development
 
 This project is still in __early stage__, although everything should just work.
