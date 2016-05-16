@@ -31,17 +31,21 @@ $ npm install evshiron/nwjs-builder -g
 ## Usage
 
 ```shell
+# Commands adapted from nwjs-download.
+
 # List versions.
-$ nwd list
+$ nwb list
 
 # Show latest version.
-$ nwd latest
+$ nwb latest
 
 # Show stable version.
-$ nwd stable
+$ nwb stable
 
 # Show caches.
-$ nwd caches
+$ nwb caches
+
+# Commands compatible with nw-builder.
 
 $ nwb nwbuild -h
 
@@ -75,6 +79,11 @@ The following manifest options are used to modify executable information, powere
 
 ```
 {
+    // Normal package.json properties.
+    "name": "nwb-test",
+    "version": "0.0.1",
+    "description": "nwb-test",
+    // Additional options.
     "nwjsBuilder": {
         "copyright": "",
         "internalName": "",
