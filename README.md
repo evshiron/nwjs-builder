@@ -57,7 +57,7 @@ $ nwb nwbuild -h
     -v,--version <VERSION>        The nw.js version, eg. 0.8.4, defaults to the stable version.
     -p,--platforms <PLATFORMS>    Platforms to build, comma-sperated, eg. win32,win64,osx32,osx64,linux32,linux64, defaults to the current platform.
     -r,--run                      Runs nw.js at PATH for the current platform.
-    -o,--output-dir <DIR_OUTPUT>  The output directory, defaults to PATH's parent.
+    -o,--output-dir <DIR_OUTPUT>  The output directory, defaults to PATHs parent.
     --with-ffmpeg                 Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
     --side-by-side                Build application with side by side packaging.
     --production                  Reinstall dependencies for production purpose.
@@ -73,6 +73,17 @@ $ nwb nwbuild -v 0.14.4-sdk -p win32,osx64 ./build/
 # Build application for win32,osx64, with custom icons and without packaging.
 $ nwb nwbuild -v 0.14.4-sdk -p win32 --win-ico app.ico --mac-icns app.icns --side-by-side ./build/
 ```
+
+## Use As Module
+
+`nwjs-builder` is able to work as a node.js module as well. The solution is somewhat tricky, but it works definitely.
+
+```javascript
+const NWB = require('nwjs-builder');
+NWB.commands.nwbuild(path, options, callback);
+```
+
+The above code snippet directly calls the underneath command handler, and the `options` is a fake commander.js `command` object (as all we need are the options). A test named `test-module.js` is provided as a reference.
 
 ## Manifest Options
 
