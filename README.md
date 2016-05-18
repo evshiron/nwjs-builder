@@ -53,15 +53,16 @@ $ nwb nwbuild -h
 
   Options:
 
-    -h, --help                  output usage information
-    -v,--version <version>      The nw version, eg. 0.8.4
-    -p,--platforms <platforms>  Platforms to build, comma-sperated, can be: win32,win64,osx32,osx64,linux32,linux64
-    -r,--run                    Runs NW.js for the current platform
-    --with-ffmpeg               Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
-    --side-by-side              Build application with side by side packaging.
-    --production                Reinstall dependencies for production purpose.
-    --win-ico <winIco>          Specify .ico for Windows build.
-    --mac-icns <macIcns>        Specify .icns for Mac OS X build.
+    -h, --help                    output usage information
+    -v,--version <VERSION>        The nw.js version, eg. 0.8.4, defaults to the stable version.
+    -p,--platforms <PLATFORMS>    Platforms to build, comma-sperated, eg. win32,win64,osx32,osx64,linux32,linux64, defaults to the current platform.
+    -r,--run                      Runs nw.js at PATH for the current platform.
+    -o,--output-dir <DIR_OUTPUT>  The output directory, defaults to PATH's parent.
+    --with-ffmpeg                 Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
+    --side-by-side                Build application with side by side packaging.
+    --production                  Reinstall dependencies for production purpose.
+    --win-ico <WIN_ICO>           Specify .ico for Windows build.
+    --mac-icns <MAC_ICNS>         Specify .icns for Mac OS X build.
 
 # Launch application.
 $ nwb nwbuild -v 0.14.4-sdk -r ./build/
