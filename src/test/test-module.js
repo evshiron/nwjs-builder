@@ -10,7 +10,7 @@ describe('module', function() {
 
     describe('nwbuild', function() {
 
-        this.timeout(15000);
+        this.timeout(60000);
 
         it('should build in "../nwb-test-build/"', function(done) {
 
