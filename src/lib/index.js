@@ -1,6 +1,8 @@
 
 'use strict';
 
+require('babel-polyfill');
+
 const { homedir } = require('os');
 const { basename, join } = require('path');
 const { exists, mkdir } = require('fs');
@@ -12,7 +14,7 @@ const Flow = require('node-flow');
 
 const NWD = require('nwjs-download');
 
-const { ExtractZip, ExtractTarGz } = require('./lib/util');
+const { ExtractZip, ExtractTarGz } = require('./util');
 
 const DIR_CACHES = join(homedir(), '.nwjs-builder', 'caches');
 mkdirsSync(DIR_CACHES);
@@ -174,14 +176,14 @@ const LaunchExecutable = (executable, path, callback) => {
 };
 
 Object.assign(module.exports, {
-    util: require('./lib/util'),
-    commands: require('./lib/commands'),
+    util: require('./util'),
+    commands: require('./commands'),
     GetExecutable,
     ExtractBinary,
     DownloadAndExtractBinary,
     DownloadAndExtractFFmpeg,
-    BuildWin32Binary: require('./lib/build/win32'),
-    BuildLinuxBinary: require('./lib/build/linux'),
-    BuildDarwinBinary: require('./lib/build/darwin'),
+    BuildWin32Binary: require('./build/win32'),
+    BuildLinuxBinary: require('./build/linux'),
+    BuildDarwinBinary: require('./build/darwin'),
     LaunchExecutable
 });

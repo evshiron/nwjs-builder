@@ -12,19 +12,19 @@ describe('module', function() {
 
         this.timeout(15000);
 
-        it('should build in "./build/"', function(done) {
+        it('should build in "../nwb-test-build/"', function(done) {
 
-            NWB.commands.nwbuild(join(DIR_TEST, './nwb-test/'), {
+            NWB.commands.nwbuild(join(DIR_TEST, '../nwb-test/'), {
                 // Here we fake a command object.
                 //run: true,
                 version: '0.14.4-sdk',
                 platforms: 'win32,osx64',
-                outputDir: join(DIR_TEST, './build/'),
+                outputDir: join(DIR_TEST, '../nwb-test-build/'),
                 withFfmpeg: true,
                 sideBySide: true,
                 production: true,
-                //winIco: './nwb-test.ico',
-                //macIcns: './nwb-test.icns',
+                //winIco: '../nwb-test.ico',
+                //macIcns: '../nwb-test.icns',
             }, (err) => {
 
                 if(err) throw err;

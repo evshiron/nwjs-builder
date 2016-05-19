@@ -2,12 +2,16 @@
   "name": "nwjs-builder",
   "version": "1.7.0",
   "description": "",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
-    "test": "mocha"
+    "pretest": "npm run build",
+    "test": "mocha",
+    "build": "babel -d . ./src/",
+    "prestart": "npm run build",
+    "start": "node ./bin/nwb.js"
   },
   "bin": {
-    "nwb": "./bin/nwb"
+    "nwb": "./bin/nwb.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +29,7 @@
   "homepage": "https://github.com/evshiron/nwjs-builder#readme",
   "dependencies": {
     "archiver": "^1.0.0",
+    "babel-polyfill": "^6.9.0",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
     "decompress-zip": "^0.3.0",
@@ -38,6 +43,13 @@
     "temp": "^0.8.3"
   },
   "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0",
     "mocha": "^2.4.5"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
   }
 }
