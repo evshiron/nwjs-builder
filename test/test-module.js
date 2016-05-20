@@ -27,10 +27,10 @@ describe('module', function () {
                 outputDir: join(DIR_TEST, '../nwb-test-build/'),
                 withFfmpeg: true,
                 sideBySide: true,
-                production: true
-            }, //winIco: '../nwb-test.ico',
-            //macIcns: '../nwb-test.icns',
-            function (err) {
+                production: true,
+                macIcns: join(DIR_TEST, '../src/test/assets/nwb-test.icns'),
+                winIco: join(DIR_TEST, '../src/test/assets/nwb-test.ico')
+            }, function (err) {
 
                 if (err) throw err;
 

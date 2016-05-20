@@ -212,7 +212,7 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         if(macIcns) {
 
-            console.log(`${ majorIdx++ }: Copy .icns to ${ buildDir }`);
+            console.log(`${ majorIdx++ }: Copy .icns to ${ this.buildDir }`);
 
             var err = yield copy(macIcns, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.icns'), cb.single);
 

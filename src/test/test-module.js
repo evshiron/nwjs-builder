@@ -23,8 +23,8 @@ describe('module', function() {
                 withFfmpeg: true,
                 sideBySide: true,
                 production: true,
-                //winIco: '../nwb-test.ico',
-                //macIcns: '../nwb-test.icns',
+                macIcns: join(DIR_TEST, '../src/test/assets/nwb-test.icns'),
+                winIco: join(DIR_TEST, '../src/test/assets/nwb-test.ico'),
             }, (err) => {
 
                 if(err) throw err;
