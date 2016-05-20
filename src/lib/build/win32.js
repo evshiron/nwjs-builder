@@ -71,6 +71,90 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         }
 
+        {
+
+            console.log(`${ majorIdx++ }: Edit Windows executable`);
+
+            const rcOptions = {
+                'version-string': {
+                    // Comments: undefined,
+                    // CompanyName: undefined,
+                    // FileDescription: manifest.description,
+                    // FileVersion: manifest.version,
+                    // InternalName: undefined,
+                    // LegalCopyright: undefined,
+                    // LegalTrademarks: undefined,
+                    // OriginalFilename: undefined,
+                    // PrivateBuild: undefined,
+                    // ProductName: manifest.name,
+                    // ProductVersion: manifest.version,
+                    // SpecialBuild: undefined,
+                },
+                'icon': winIco ? winIco : undefined
+            };
+
+            if(manifest.name) {
+                rcOptions['version-string'].ProductName = manifest.name;
+            }
+
+            if(manifest.version) {
+                rcOptions['product-version'] = manifest.version;
+            }
+
+            if(manifest.description) {
+                rcOptions['version-string'].FileDescription = manifest.description;
+            }
+
+            if(manifest.nwjsBuilder) {
+
+                const properties = manifest.nwjsBuilder;
+
+                if(properties.copyright) {
+                    rcOptions['version-string'].LegalCopyright = properties.copyright;
+                }
+
+                if(properties.internalName) {
+                    rcOptions['version-string'].InternalName = properties.internalName;
+                }
+
+                if(properties.fileVersion) {
+                    rcOptions['file-version'] = properties.fileVersion;
+                }
+
+                if(properties.comments) {
+                    rcOptions['version-string'].Comments = properties.comments;
+                }
+
+                if(properties.companyName) {
+                    rcOptions['version-string'].CompanyName = properties.companyName;
+                }
+
+                if(properties.legalTrademarks) {
+                    rcOptions['version-string'].LegalTrademarks = properties.legalTrademarks;
+                }
+
+                if(properties.originalFilename) {
+                    rcOptions['version-string'].OriginalFilename = properties.originalFilename;
+                }
+
+                if(properties.privateBuild) {
+                    rcOptions['version-string'].PrivateBuild = properties.privateBuild;
+                }
+
+                if(properties.specialBuild) {
+                    rcOptions['version-string'].SpecialBuild = properties.specialBuild;
+                }
+
+            }
+
+            var err = yield rcedit(join(this.buildDir, 'nw.exe'), rcOptions, cb.single);
+
+            if(err) {
+                return callback(err);
+            }
+
+        }
+
         if(withFFmpeg) {
 
             console.log(`${ majorIdx++ }: Install ffmpeg for nw.js ${ version }`);
@@ -182,90 +266,6 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
             console.log(`${ majorIdx++ }: Combine executable at ${ executable }`);
 
             var err = yield NWB.util.CombineExecutable(executable, nwFile, cb.single);
-
-            if(err) {
-                return callback(err);
-            }
-
-        }
-
-        {
-
-            console.log(`${ majorIdx++ }: Edit Windows executable`);
-
-            const rcOptions = {
-                'version-string': {
-                    // Comments: undefined,
-                    // CompanyName: undefined,
-                    // FileDescription: manifest.description,
-                    // FileVersion: manifest.version,
-                    // InternalName: undefined,
-                    // LegalCopyright: undefined,
-                    // LegalTrademarks: undefined,
-                    // OriginalFilename: undefined,
-                    // PrivateBuild: undefined,
-                    // ProductName: manifest.name,
-                    // ProductVersion: manifest.version,
-                    // SpecialBuild: undefined,
-                },
-                'icon': winIco ? winIco : undefined
-            };
-
-            if(manifest.name) {
-                rcOptions['version-string'].ProductName = manifest.name;
-            }
-
-            if(manifest.version) {
-                rcOptions['product-version'] = manifest.version;
-            }
-
-            if(manifest.description) {
-                rcOptions['version-string'].FileDescription = manifest.description;
-            }
-
-            if(manifest.nwjsBuilder) {
-
-                const properties = manifest.nwjsBuilder;
-
-                if(properties.copyright) {
-                    rcOptions['version-string'].LegalCopyright = properties.copyright;
-                }
-
-                if(properties.internalName) {
-                    rcOptions['version-string'].InternalName = properties.internalName;
-                }
-
-                if(properties.fileVersion) {
-                    rcOptions['file-version'] = properties.fileVersion;
-                }
-
-                if(properties.comments) {
-                    rcOptions['version-string'].Comments = properties.comments;
-                }
-
-                if(properties.companyName) {
-                    rcOptions['version-string'].CompanyName = properties.companyName;
-                }
-
-                if(properties.legalTrademarks) {
-                    rcOptions['version-string'].LegalTrademarks = properties.legalTrademarks;
-                }
-
-                if(properties.originalFilename) {
-                    rcOptions['version-string'].OriginalFilename = properties.originalFilename;
-                }
-
-                if(properties.privateBuild) {
-                    rcOptions['version-string'].PrivateBuild = properties.privateBuild;
-                }
-
-                if(properties.specialBuild) {
-                    rcOptions['version-string'].SpecialBuild = properties.specialBuild;
-                }
-
-            }
-
-            var err = yield rcedit(join(this.buildDir, 'nw.exe'), rcOptions, cb.single);
 
             if(err) {
                 return callback(err);

@@ -106,7 +106,7 @@ const CombineExecutable = (executable, nwFile, callback) => {
     nwStream.on('error', (err) => callback(err));
     stream.on('error', (err) => callback(err));
 
-    nwStream.on('end', () => callback(null));
+    stream.on('finish', () => callback(null));
 
     nwStream.pipe(stream);
 
