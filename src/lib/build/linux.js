@@ -145,7 +145,7 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
             }, cb.expect(3));
 
             if(err) {
-                return callback(er);
+                return callback(err);
             }
 
             //console.log(stdout);
