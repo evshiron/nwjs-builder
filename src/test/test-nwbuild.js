@@ -25,7 +25,7 @@ describe('nwb', function() {
 
         it('should launch and exit with code 233', function(done) {
 
-            cp.exec('node ./bin/nwb.js nwbuild -r ./nwb-test/', function(err, stdout, stderr) {
+            cp.exec('node ./bin/nwb.js nwbuild -r ./assets/nwb-test/', function(err, stdout, stderr) {
 
                 if(err && err.code == 233) return done();
                 else if(err) throw err;
