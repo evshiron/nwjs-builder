@@ -5,6 +5,8 @@ describe('nwb', function() {
 
     describe('nwbuild -h', function() {
 
+        this.timeout(30000);
+
         it('should print help and exit with code 0', function(done) {
 
             cp.exec('node ./bin/nwb.js nwbuild -h', function(err, stdout, stderr) {
@@ -21,7 +23,7 @@ describe('nwb', function() {
 
     describe('nwbuild -r', function() {
 
-        this.timeout(15000);
+        this.timeout(60000);
 
         it('should launch and exit with code 233', function(done) {
 
