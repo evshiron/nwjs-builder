@@ -8,6 +8,24 @@ const NWD = require('nwjs-download');
 
 const NWB = require('../');
 
+const IncludeHandler = (value, memo) => {
+
+    const parts = value.split(':');
+
+    if(parts.length == 1) {
+        throw new Error('ERROR_INCLUDE_ARGUMENT_COUNT');
+    }
+    else if(parts.length == 2) {
+        memo.push([...parts, './']);
+    }
+    else if(parts.length == 3) {
+        memo.push(parts);
+    }
+
+    return memo;
+
+};
+
 commander.version(require('../package.json').version);
 
 commander.command('*')
@@ -33,6 +51,7 @@ commander.command('nwbuild [PATH]')
 .option('-p,--platforms <PLATFORMS>', 'Platforms to build, comma-sperated, eg. win32,win64,osx32,osx64,linux32,linux64, defaults to the current platform.')
 .option('-r,--run', 'Runs nw.js at PATH for the current platform.')
 .option('-o,--output-dir <DIR_OUTPUT>', 'The output directory, defaults to PATH\'s parent.')
+.option('-i, --include <DIR_SRC>:<GLOB>[:DIR_DEST]', 'Include extra files matching GLOB from DIR_SRC to DIR_OUTPUT/DIR_DEST.', IncludeHandler, [])
 .option('--with-ffmpeg', 'Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.')
 .option('--side-by-side', 'Build application with side by side packaging.')
 .option('--production', 'Reinstall dependencies for production purpose.')

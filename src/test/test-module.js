@@ -1,5 +1,6 @@
 
 const { dirname, join } = require('path');
+const { existsSync } = require('fs');
 
 const NWB = require('../');
 
@@ -20,6 +21,14 @@ describe('module', function() {
                 version: '0.14.4-sdk',
                 platforms: 'win32,osx64',
                 outputDir: join(DIR_TEST, '../nwb-test-build/'),
+                include: [
+                    // cp -r ./README.md ${DIR_BUILD}/README.md
+                    ['./', 'README.md', './'],
+                    // cp -r ./lib/build/*.js ${DIR_BUILD}/
+                    ['./lib/build/', '*.js', './'],
+                    // cp -r ./lib/ ${DIR_BUILD}/
+                    ['./', 'lib/**/*.js', './']
+                ],
                 withFfmpeg: true,
                 sideBySide: true,
                 production: true,
@@ -28,6 +37,15 @@ describe('module', function() {
             }, (err) => {
 
                 if(err) throw err;
+
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/README.md')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/win32.js')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/linux.js')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/darwin.js')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/lib/index.js')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/lib/build/win32.js')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/lib/build/linux.js')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./nwb-test-build/nwb-test-win-ia32/lib/build/darwin.js')) throw('ERROR_FILE_NOT_EXISTS');
 
                 done();
 

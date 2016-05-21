@@ -1,9 +1,9 @@
 
 'use strict';
 
-const { dirname, join } = require('path');
+const { dirname, join, resolve } = require('path');
 const { writeFile, readFile, rename } = require('fs');
-const { readJson, emptyDir, copy } = require('fs-extra');
+const { readJson, emptyDir, copy, remove } = require('fs-extra');
 const { exec } = require('child_process');
 
 const temp = require('temp');
@@ -20,6 +20,7 @@ const NWB = require('../../');
 
 const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
     outputDir = null,
+    includes = null,
     withFFmpeg = false,
     sideBySide = false,
     production = false,
@@ -176,6 +177,41 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
             //console.log(stdout);
             console.log(stderr);
+
+        }
+
+        if(includes) {
+
+            console.log(`${ majorIdx++ }: Copy included files to ${ this.workingDir }`);
+
+            for(let [src, gl, dest] of includes) {
+
+                let files;
+                let srcDir = resolve(src);
+                let destDir = resolve(join(this.workingDir, dest));
+
+                [err, files] = yield glob(gl, {
+                    cwd: srcDir
+                }, cb.expect(2));
+
+                if(err) {
+                    return callback(err);
+                }
+
+                for(let file of files) {
+
+                    let src = resolve(join(srcDir, file));
+                    let dest = resolve(join(destDir, file));
+
+                    err = yield copy(src, dest, cb.single);
+
+                    if(err) {
+                        return callback(err);
+                    }
+
+                }
+
+            }
 
         }
 

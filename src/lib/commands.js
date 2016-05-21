@@ -104,6 +104,7 @@ const NwBuilderBuild = (path, command, callback) => {
 
                     let [err, path] = yield NWB.BuildWin32Binary(options.path, binaryDir, options.version, NWD.GetPlatform(platform), NWD.GetArch(arch), {
                         outputDir: command.outputDir ? command.outputDir : null,
+                        includes: command.include ? command.include : null,
                         withFFmpeg: command.withFfmpeg ? true : false,
                         sideBySide: command.sideBySide ? true : false,
                         production: command.production ? true : false,
@@ -125,6 +126,7 @@ const NwBuilderBuild = (path, command, callback) => {
 
                     let [err, path] = yield NWB.BuildLinuxBinary(options.path, binaryDir, options.version, NWD.GetPlatform(platform), NWD.GetArch(arch), {
                         outputDir: command.outputDir ? command.outputDir : null,
+                        includes: command.include ? command.include : null,
                         withFFmpeg: command.withFfmpeg ? true : false,
                         sideBySide: command.sideBySide ? true : false,
                         production: command.production ? true : false
@@ -145,6 +147,7 @@ const NwBuilderBuild = (path, command, callback) => {
 
                     let [err, path] = yield NWB.BuildDarwinBinary(options.path, binaryDir, options.version, NWD.GetPlatform(platform), NWD.GetArch(arch), {
                         outputDir: command.outputDir ? command.outputDir : null,
+                        includes: command.include ? command.include : null,
                         withFFmpeg: command.withFfmpeg ? true : false,
                         sideBySide: command.sideBySide ? true : false,
                         production: command.production ? true : false,
