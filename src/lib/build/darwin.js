@@ -27,8 +27,6 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
     macIcns = null
 }, callback) => {
 
-    const debug = require('debug')('BuildDarwinBinary');
-
     const context = {};
 
     Flow(function*(cb) {
@@ -37,9 +35,11 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err, manifest;
+
             console.log(`${ majorIdx++ }: Read package.json`);
 
-            var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
+            [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -54,9 +54,11 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Prepare build directory at ${ this.buildDir }`);
 
-            var [err, ] = yield emptyDir(this.buildDir, cb.expect(2));
+            [err, ] = yield emptyDir(this.buildDir, cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -66,11 +68,13 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Copy binary from ${ binaryDir }`);
 
             const REGEX_FILTER_I18N = /\/nwjs\.app\/Contents\/Resources\/[a-zA-Z0-9_]+\.lproj/;
 
-            var err = yield copy(binaryDir, this.buildDir, {
+            err = yield copy(binaryDir, this.buildDir, {
                 // Ignore i18n files.
                 filter: (path) => !REGEX_FILTER_I18N.test(path)
             }, cb.single);
@@ -83,47 +87,45 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         if(withFFmpeg) {
 
+            let err, tempDir;
+
             console.log(`${ majorIdx++ }: Install ffmpeg for nw.js ${ version }`);
 
             // Make a temporary directory.
 
-            var err = yield temp.mkdir(null, (err, tempDir) => {
+            [err, tempDir] = yield temp.mkdir(null, cb.expect(2));
+
+            if(err) {
+                return callback(err);
+            }
+
+            // Extract FFmpeg to temporary directory.
+
+            [err, , ] = yield NWB.DownloadAndExtractFFmpeg(tempDir, {
+                version, platform, arch
+            }, cb.expect(3));
+
+            if(err) {
+                return callback(err);
+            }
+
+            // Find original libffmpeg.dylib.
+
+            err = yield glob(join(this.buildDir, 'nwjs.app/**/libffmpeg.dylib'), {}, (err, files) => {
 
                 if(err) {
                     return cb.single(err);
                 }
 
-                // Extract FFmpeg to temporary directory.
+                if(files && files[0]) {
 
-                NWB.DownloadAndExtractFFmpeg(tempDir, {
-                    version, platform, arch
-                }, (err, fromCache, tempDir) => {
+                    // Overwrite libffmpeg.dylib.
 
-                    if(err) {
-                        return cb.single(err);
-                    }
+                    copy(join(tempDir, 'libffmpeg.dylib'), files[0], {
+                        clobber: true
+                    }, cb.single);
 
-                    // Find original libffmpeg.dylib.
-
-                    glob(join(this.buildDir, 'nwjs.app/**/libffmpeg.dylib'), {}, (err, files) => {
-
-                        if(err) {
-                            return cb.single(err);
-                        }
-
-                        if(files && files[0]) {
-
-                            // Overwrite libffmpeg.dylib.
-
-                            copy(join(tempDir, 'libffmpeg.dylib'), files[0], {
-                                clobber: true
-                            }, cb.single);
-
-                        }
-
-                    });
-
-                });
+                }
 
             });
 
@@ -135,15 +137,17 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err, workingDir;
+
             console.log(`${ majorIdx++ }: Make working directory`);
 
-            var [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
+            [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
 
             if(err) {
                 return callback(err);
             }
 
-            var err = yield copy(path, workingDir, cb.single);
+            err = yield copy(path, workingDir, cb.single);
 
             if(err) {
                 return callback(err);
@@ -155,11 +159,13 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         if(production) {
 
+            let err, stdout, stderr;
+
             const nodeModules = join(this.workingDir, 'node_modules');
 
             console.log(`${ majorIdx++ }: Remove node_modules at ${ nodeModules }`);
 
-            var err = yield remove(nodeModules, cb.single);
+            err = yield remove(nodeModules, cb.single);
 
             if(err) {
                 return callback(err);
@@ -167,7 +173,7 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
             console.log(`${ majorIdx++ }: Execute npm install at ${ this.workingDir }`);
 
-            var [err, stdout, stderr] = yield exec('npm install', {
+            [err, stdout, stderr] = yield exec('npm install', {
                 cwd: this.workingDir
             }, cb.expect(3));
 
@@ -186,9 +192,10 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
             for(let [src, gl, dest] of includes) {
 
-                let files;
-                let srcDir = resolve(src);
-                let destDir = resolve(join(this.workingDir, dest));
+                let err, files;
+
+                const srcDir = resolve(src);
+                const destDir = resolve(join(this.workingDir, dest));
 
                 [err, files] = yield glob(gl, {
                     cwd: srcDir
@@ -217,11 +224,13 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err, pl;
+
             const infoFile = join(this.buildDir, 'nwjs.app', 'Contents', 'Info.plist');
 
             console.log(`${ majorIdx++ }: Modify Info.plist at ${ infoFile }`);
 
-            var [err, pl] = yield readFile(infoFile, {
+            [err, pl] = yield readFile(infoFile, {
                 encoding: 'utf-8'
             }, (err, data) => {
 
@@ -237,13 +246,13 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
                 return callback(err);
             }
 
-            pl['CFBundleDisplayName'] = manifest.name;
-            pl['CFBundleName'] = manifest.name;
-            pl['CFBundleVersion'] = manifest.version;
-            pl['CFBundleShortVersionString'] = manifest.version;
-            pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + manifest.name.toLowerCase();
+            pl['CFBundleDisplayName'] = this.manifest.name;
+            pl['CFBundleName'] = this.manifest.name;
+            pl['CFBundleVersion'] = this.manifest.version;
+            pl['CFBundleShortVersionString'] = this.manifest.version;
+            pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + this.manifest.name.toLowerCase();
 
-            var err = yield writeFile(infoFile, plist.build(pl), cb.single);
+            err = yield writeFile(infoFile, plist.build(pl), cb.single);
 
             if(err) {
                 return callback(err);
@@ -253,9 +262,11 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         if(macIcns) {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Copy .icns to ${ this.buildDir }`);
 
-            var err = yield copy(macIcns, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.icns'), cb.single);
+            err = yield copy(macIcns, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.icns'), cb.single);
 
             if(err) {
                 return callback(err);
@@ -264,10 +275,12 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
         }
 
         {
+
+            let err;
 
             console.log(`${ majorIdx++ }: Copy application from ${ this.workingDir }`);
 
-            var err = yield copy(this.workingDir, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), cb.single);
+            err = yield copy(this.workingDir, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), cb.single);
 
             if(err) {
                 return callback(err);
@@ -277,11 +290,13 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
-            const newName = manifest.name + '.app';
+            let err;
+
+            const newName = this.manifest.name + '.app';
 
             console.log(`${ majorIdx++ }: Rename application to ${ newName }`);
 
-            var err = yield rename(join(this.buildDir, 'nwjs.app'), join(this.buildDir, newName), cb.single);
+            err = yield rename(join(this.buildDir, 'nwjs.app'), join(this.buildDir, newName), cb.single);
 
             if(err) {
                 return callback(err);

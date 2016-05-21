@@ -35,9 +35,11 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err, manifest;
+
             console.log(`${ majorIdx++ }: Read package.json`);
 
-            var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
+            [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -52,9 +54,11 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Prepare build directory at ${ this.buildDir }`);
 
-            var [err, ] = yield emptyDir(this.buildDir, cb.expect(2));
+            [err, ] = yield emptyDir(this.buildDir, cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -63,10 +67,12 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
         }
 
         {
+
+            let err;
 
             console.log(`${ majorIdx++ }: Copy binary from ${ binaryDir }`);
 
-            var err = yield copy(binaryDir, this.buildDir, {}, cb.single);
+            err = yield copy(binaryDir, this.buildDir, {}, cb.single);
 
             if(err) {
                 return callback(err);
@@ -75,6 +81,8 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
         }
 
         {
+
+            let err;
 
             console.log(`${ majorIdx++ }: Edit Windows executable`);
 
@@ -93,24 +101,24 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
                     // ProductVersion: manifest.version,
                     // SpecialBuild: undefined,
                 },
-                'icon': winIco ? winIco : undefined
+                'icon': winIco ? winIco : null
             };
 
-            if(manifest.name) {
-                rcOptions['version-string'].ProductName = manifest.name;
+            if(this.manifest.name) {
+                rcOptions['version-string'].ProductName = this.manifest.name;
             }
 
-            if(manifest.version) {
-                rcOptions['product-version'] = manifest.version;
+            if(this.manifest.version) {
+                rcOptions['product-version'] = this.manifest.version;
             }
 
-            if(manifest.description) {
-                rcOptions['version-string'].FileDescription = manifest.description;
+            if(this.manifest.description) {
+                rcOptions['version-string'].FileDescription = this.manifest.description;
             }
 
-            if(manifest.nwjsBuilder) {
+            if(this.manifest.nwjsBuilder) {
 
-                const properties = manifest.nwjsBuilder;
+                const properties = this.manifest.nwjsBuilder;
 
                 if(properties.copyright) {
                     rcOptions['version-string'].LegalCopyright = properties.copyright;
@@ -150,7 +158,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
             }
 
-            var err = yield rcedit(join(this.buildDir, 'nw.exe'), rcOptions, cb.single);
+            err = yield rcedit(join(this.buildDir, 'nw.exe'), rcOptions, cb.single);
 
             if(err) {
                 return callback(err);
@@ -160,35 +168,33 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         if(withFFmpeg) {
 
+            let err, tempDir;
+
             console.log(`${ majorIdx++ }: Install ffmpeg for nw.js ${ version }`);
 
             // Make a temporary directory.
 
-            var err = yield temp.mkdir(null, (err, tempDir) => {
+            [err, tempDir] = yield temp.mkdir(null, cb.expect(2));
 
-                if(err) {
-                    return cb.single(err);
-                }
+            if(err) {
+                return callback(err);
+            }
 
-                // Extract FFmpeg to temporary directory.
+            // Extract FFmpeg to temporary directory.
 
-                NWB.DownloadAndExtractFFmpeg(tempDir, {
-                    version, platform, arch
-                }, (err, fromCache, tempDir) => {
+            [err, , ] = yield NWB.DownloadAndExtractFFmpeg(tempDir, {
+                version, platform, arch
+            }, cb.expect(3));
 
-                    if(err) {
-                        return cb.single(err);
-                    }
+            if(err) {
+                return callback(err);
+            }
 
-                    // Overwrite ffmpeg.dll.
+            // Overwrite ffmpeg.dll.
 
-                    copy(join(tempDir, 'ffmpeg.dll'), join(this.buildDir, 'ffmpeg.dll'), {
-                        clobber: true
-                    }, cb.single);
-
-                });
-
-            });
+            err = yield copy(join(tempDir, 'ffmpeg.dll'), join(this.buildDir, 'ffmpeg.dll'), {
+                clobber: true
+            }, cb.single);
 
             if(err) {
                 return callback(err);
@@ -198,15 +204,17 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err, workingDir;
+
             console.log(`${ majorIdx++ }: Make working directory`);
 
-            var [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
+            [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
 
             if(err) {
                 return callback(err);
             }
 
-            var err = yield copy(path, workingDir, cb.single);
+            err = yield copy(path, workingDir, cb.single);
 
             if(err) {
                 return callback(err);
@@ -218,11 +226,13 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         if(production) {
 
+            let err, stdout, stderr;
+
             const nodeModules = join(this.workingDir, 'node_modules');
 
             console.log(`${ majorIdx++ }: Remove node_modules at ${ nodeModules }`);
 
-            var err = yield remove(nodeModules, cb.single);
+            err = yield remove(nodeModules, cb.single);
 
             if(err) {
                 return callback(err);
@@ -230,7 +240,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
             console.log(`${ majorIdx++ }: Execute npm install at ${ this.workingDir }`);
 
-            var [err, stdout, stderr] = yield exec('npm install', {
+            [err, stdout, stderr] = yield exec('npm install', {
                 cwd: this.workingDir
             }, cb.expect(3));
 
@@ -249,9 +259,10 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
             for(let [src, gl, dest] of includes) {
 
-                let files;
-                let srcDir = resolve(src);
-                let destDir = resolve(join(this.workingDir, dest));
+                let err, files;
+
+                const srcDir = resolve(src);
+                const destDir = resolve(join(this.workingDir, dest));
 
                 [err, files] = yield glob(gl, {
                     cwd: srcDir
@@ -280,9 +291,11 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         if(sideBySide) {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Copy application from ${ this.workingDir }`);
 
-            var err = yield copy(this.workingDir, this.buildDir, cb.single);
+            err = yield copy(this.workingDir, this.buildDir, cb.single);
 
             if(err) {
                 return callback(err);
@@ -291,9 +304,11 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
         }
         else {
 
+            let err, nwFile;
+
             console.log(`${ majorIdx++ }: Compress application`);
 
-            var [err, nwFile] = yield NWB.util.ZipDirectory(this.workingDir, [], temp.path(), cb.expect(2));
+            [err, nwFile] = yield NWB.util.ZipDirectory(this.workingDir, [], temp.path(), cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -303,7 +318,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
             console.log(`${ majorIdx++ }: Combine executable at ${ executable }`);
 
-            var err = yield NWB.util.CombineExecutable(executable, nwFile, cb.single);
+            err = yield NWB.util.CombineExecutable(executable, nwFile, cb.single);
 
             if(err) {
                 return callback(err);
@@ -313,11 +328,13 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
         {
 
-            const newName = manifest.name + '.exe';
+            let err;
+
+            const newName = this.manifest.name + '.exe';
 
             console.log(`${ majorIdx++ }: Rename application to ${ newName }`);
 
-            var err = yield rename(join(this.buildDir, 'nw.exe'), join(this.buildDir, newName), cb.single);
+            err = yield rename(join(this.buildDir, 'nw.exe'), join(this.buildDir, newName), cb.single);
 
             if(err) {
                 return callback(err);

@@ -19,7 +19,7 @@ describe('module', function() {
                 // Here we fake a command object.
                 //run: true,
                 version: '0.14.4-sdk',
-                platforms: 'win32,osx64',
+                platforms: 'win32,linux32,osx64',
                 outputDir: join(DIR_TEST, '../nwb-test-build/'),
                 include: [
                     // cp -r ./README.md ${DIR_BUILD}/README.md

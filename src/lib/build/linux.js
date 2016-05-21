@@ -1,12 +1,14 @@
 
 'use strict';
 
-const { dirname, join } = require('path');
+const { dirname, join, resolve } = require('path');
 const { rename } = require('fs');
 const { readJson, emptyDir, copy, remove } = require('fs-extra');
 const { exec } = require('child_process');
 
 const temp = require('temp');
+
+const glob = require('glob');
 
 const Flow = require('node-flow');
 
@@ -30,9 +32,11 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err, manifest;
+
             console.log(`${ majorIdx++ }: Read package.json`);
 
-            var [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
+            [err, manifest] = yield readJson(join(path, 'package.json'), cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -47,9 +51,11 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Prepare build directory at ${ this.buildDir }`);
 
-            var [err, ] = yield emptyDir(this.buildDir, cb.expect(2));
+            [err, ] = yield emptyDir(this.buildDir, cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -59,9 +65,11 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Copy binary from ${ binaryDir }`);
 
-            var err = yield copy(binaryDir, this.buildDir, {}, cb.single);
+            err = yield copy(binaryDir, this.buildDir, {}, cb.single);
 
             if(err) {
                 return callback(err);
@@ -71,35 +79,33 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         if(withFFmpeg) {
 
+            let err, tempDir;
+
             console.log(`${ majorIdx++ }: Install ffmpeg for nw.js ${ version }`);
 
             // Make a temporary directory.
 
-            var err = yield temp.mkdir(null, (err, tempDir) => {
+            [err, tempDir] = yield temp.mkdir(null, cb.expect(2));
 
-                if(err) {
-                    return cb.single(err);
-                }
+            if(err) {
+                return callback(err);
+            }
 
-                // Extract FFmpeg to temporary directory.
+            // Extract FFmpeg to temporary directory.
 
-                NWB.DownloadAndExtractFFmpeg(tempDir, {
-                    version, platform, arch
-                }, (err, fromCache, tempDir) => {
+            [err, , ] = yield NWB.DownloadAndExtractFFmpeg(tempDir, {
+                version, platform, arch
+            }, cb.expect(3));
 
-                    if(err) {
-                        return cb.single(err);
-                    }
+            if(err) {
+                return callback(err);
+            }
 
-                    // Overwrite libffmpeg.so.
+            // Overwrite ffmpeg.dll.
 
-                    copy(join(tempDir, 'libffmpeg.so'), join(this.buildDir, 'lib/libffmpeg.so'), {
-                        clobber: true
-                    }, cb.single);
-
-                });
-
-            });
+            err = yield copy(join(tempDir, 'libffmpeg.so'), join(this.buildDir, 'libffmpeg.so'), {
+                clobber: true
+            }, cb.single);
 
             if(err) {
                 return callback(err);
@@ -109,15 +115,17 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
+            let err, workingDir;
+
             console.log(`${ majorIdx++ }: Make working directory`);
 
-            var [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
+            [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
 
             if(err) {
                 return callback(err);
             }
 
-            var err = yield copy(path, workingDir, cb.single);
+            err = yield copy(path, workingDir, cb.single);
 
             if(err) {
                 return callback(err);
@@ -129,11 +137,13 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         if(production) {
 
+            let err, stdout, stderr;
+
             const nodeModules = join(this.workingDir, 'node_modules');
 
             console.log(`${ majorIdx++ }: Remove node_modules at ${ nodeModules }`);
 
-            var err = yield remove(nodeModules, cb.single);
+            err = yield remove(nodeModules, cb.single);
 
             if(err) {
                 return callback(err);
@@ -141,7 +151,7 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
             console.log(`${ majorIdx++ }: Execute npm install at ${ this.workingDir }`);
 
-            var [err, stdout, stderr] = yield exec('npm install', {
+            [err, stdout, stderr] = yield exec('npm install', {
                 cwd: this.workingDir
             }, cb.expect(3));
 
@@ -160,9 +170,10 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
             for(let [src, gl, dest] of includes) {
 
-                let files;
-                let srcDir = resolve(src);
-                let destDir = resolve(join(this.workingDir, dest));
+                let err, files;
+
+                const srcDir = resolve(src);
+                const destDir = resolve(join(this.workingDir, dest));
 
                 [err, files] = yield glob(gl, {
                     cwd: srcDir
@@ -191,9 +202,11 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         if(sideBySide) {
 
+            let err;
+
             console.log(`${ majorIdx++ }: Copy application from ${ this.workingDir }`);
 
-            var err = yield copy(this.workingDir, this.buildDir, cb.single);
+            err = yield copy(this.workingDir, this.buildDir, cb.single);
 
             if(err) {
                 return callback(err);
@@ -202,9 +215,11 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
         }
         else {
 
+            let err, nwFile;
+
             console.log(`${ majorIdx++ }: Compress application`);
 
-            var [err, nwFile] = yield NWB.util.ZipDirectory(this.workingDir, [], temp.path(), cb.expect(2));
+            [err, nwFile] = yield NWB.util.ZipDirectory(this.workingDir, [], temp.path(), cb.expect(2));
 
             if(err) {
                 return callback(err);
@@ -224,11 +239,13 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
         {
 
-            const newName = manifest.name;
+            let err;
+
+            const newName = this.manifest.name;
 
             console.log(`${ majorIdx++ }: Rename application to ${ newName }`);
 
-            var err = yield rename(join(this.buildDir, 'nw'), join(this.buildDir, newName), cb.single);
+            err = yield rename(join(this.buildDir, 'nw'), join(this.buildDir, newName), cb.single);
 
             if(err) {
                 return callback(err);
