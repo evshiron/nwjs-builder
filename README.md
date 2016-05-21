@@ -9,7 +9,7 @@ node.js 4.1+ is required.
 ## Features
 
 * Use `http://nwjs.io/versions.json` (powered by [evshiron/nwjs-download](https://github.com/evshiron/nwjs-download))
-* Use (limited) ECMAScript 6
+* Use ECMAScript 6
 * Support
   * All major versions (listed in `versions.json`)
   * All platforms (win32, linux, darwin)
@@ -49,20 +49,21 @@ $ nwb caches
 
 $ nwb nwbuild -h
 
-  Usage: nwbuild [options] [path]
+  Usage: nwbuild [options] [PATH]
 
   Options:
 
-    -h, --help                    output usage information
-    -v,--version <VERSION>        The nw.js version, eg. 0.8.4, defaults to the stable version.
-    -p,--platforms <PLATFORMS>    Platforms to build, comma-sperated, eg. win32,win64,osx32,osx64,linux32,linux64, defaults to the current platform.
-    -r,--run                      Runs nw.js at PATH for the current platform.
-    -o,--output-dir <DIR_OUTPUT>  The output directory, defaults to PATHs parent.
-    --with-ffmpeg                 Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
-    --side-by-side                Build application with side by side packaging.
-    --production                  Reinstall dependencies for production purpose.
-    --win-ico <WIN_ICO>           Specify .ico for Windows build.
-    --mac-icns <MAC_ICNS>         Specify .icns for Mac OS X build.
+    -h, --help                                 output usage information
+    -v,--version <VERSION>                     The nw.js version, eg. 0.8.4, defaults to the stable version.
+    -p,--platforms <PLATFORMS>                 Platforms to build, comma-sperated, eg. win32,win64,osx32,osx64,linux32,linux64, defaults to the current platform.
+    -r,--run                                   Runs nw.js at PATH for the current platform.
+    -o,--output-dir <DIR_OUTPUT>               The output directory, defaults to PATH's parent.
+    -i, --include <DIR_SRC>:<GLOB>[:DIR_DEST]  Include extra files matching GLOB from DIR_SRC to DIR_OUTPUT/DIR_DEST.
+    --with-ffmpeg                              Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
+    --side-by-side                             Build application with side by side packaging.
+    --production                               Reinstall dependencies for production purpose.
+    --win-ico <WIN_ICO>                        Specify .ico for Windows build.
+    --mac-icns <MAC_ICNS>                      Specify .icns for Mac OS X build.
 
 # Launch application.
 $ nwb nwbuild -v 0.14.4-sdk -r ./build/
@@ -112,11 +113,13 @@ The following manifest options are used to modify executable information, powere
 
 ## Development
 
-This project is still in __early stage__, although everything should just work.
+I am still learning about how to form a modern node.js module well. As a result, the project structure might change from time to time.
 
-Welcome to try it out, but __use it on your own risk when used in production__.
+While new features are added, some existing features might break too.
 
-PRs and issues are appreciated.
+If anything doesn't work properly, feel free to open issues and provide enough information so that things can be quickly fixed.
+
+PRs and issues are always appreciated.
 
 See also:
 
