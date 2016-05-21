@@ -132,24 +132,42 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         }
 
-        if(production) {
+        {
 
-            console.log(`${ majorIdx++ }: Copy application from ${ path }`);
+            console.log(`${ majorIdx++ }: Make working directory`);
 
-            const workingDir = join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw');
-
-            var err = yield copy(path, workingDir, {
-                filter: (path) => !/node_modules/.test(path)
-            }, cb.single);
+            var [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
 
             if(err) {
                 return callback(err);
             }
 
-            console.log(`${ majorIdx++ }: Execute npm install at ${ workingDir }`);
+            var err = yield copy(path, workingDir, cb.single);
+
+            if(err) {
+                return callback(err);
+            }
+
+            this.workingDir = workingDir;
+
+        }
+
+        if(production) {
+
+            const nodeModules = join(this.workingDir, 'node_modules');
+
+            console.log(`${ majorIdx++ }: Remove node_modules at ${ nodeModules }`);
+
+            var err = yield remove(nodeModules, cb.single);
+
+            if(err) {
+                return callback(err);
+            }
+
+            console.log(`${ majorIdx++ }: Execute npm install at ${ this.workingDir }`);
 
             var [err, stdout, stderr] = yield exec('npm install', {
-                cwd: workingDir
+                cwd: this.workingDir
             }, cb.expect(3));
 
             if(err) {
@@ -158,19 +176,6 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
             //console.log(stdout);
             console.log(stderr);
-
-            this.workingDir = workingDir;
-
-        }
-        else {
-
-            console.log(`${ majorIdx++ }: Copy application from ${ path }`);
-
-            var err = yield copy(path, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), {}, cb.single);
-
-            if(err) {
-                return callback(err);
-            }
 
         }
 
@@ -215,6 +220,18 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
             console.log(`${ majorIdx++ }: Copy .icns to ${ this.buildDir }`);
 
             var err = yield copy(macIcns, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.icns'), cb.single);
+
+            if(err) {
+                return callback(err);
+            }
+
+        }
+
+        {
+
+            console.log(`${ majorIdx++ }: Copy application from ${ this.workingDir }`);
+
+            var err = yield copy(this.workingDir, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.nw'), cb.single);
 
             if(err) {
                 return callback(err);
