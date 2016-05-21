@@ -4,6 +4,7 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
+    "prepublish": "npm run build",
     "pretest": "npm run build",
     "test": "mocha",
     "build": "babel -d . ./src/",
