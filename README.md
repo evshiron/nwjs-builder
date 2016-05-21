@@ -30,7 +30,7 @@ $ npm install evshiron/nwjs-builder -g
 
 ## Usage
 
-```shell
+```
 # Commands adapted from nwjs-download.
 
 # List versions.
@@ -58,7 +58,7 @@ $ nwb nwbuild -h
     -p,--platforms <PLATFORMS>                 Platforms to build, comma-sperated, eg. win32,win64,osx32,osx64,linux32,linux64, defaults to the current platform.
     -r,--run                                   Runs nw.js at PATH for the current platform.
     -o,--output-dir <DIR_OUTPUT>               The output directory, defaults to PATH's parent.
-    -i, --include <DIR_SRC>:<GLOB>[:DIR_DEST]  Include extra files matching GLOB from DIR_SRC to DIR_OUTPUT/DIR_DEST.
+    -i, --include <DIR_SRC>:<GLOB>[:DIR_DEST]  Include extra files matching GLOB from DIR_SRC to DIR_BUILD/DIR_DEST.
     --with-ffmpeg                              Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
     --side-by-side                             Build application with side by side packaging.
     --production                               Reinstall dependencies for production purpose.
