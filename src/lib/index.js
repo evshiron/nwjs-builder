@@ -99,13 +99,14 @@ const DownloadAndExtractBinary = ({
     version = null,
     platform = null,
     arch = null,
-    flavor = null
+    flavor = null,
+    mirror = null
 }, callback) => {
 
     // Download nw.js.
 
     NWD.DownloadBinary({
-        version, platform, arch, flavor,
+        version, platform, arch, flavor, mirror,
         showProgressbar: true
     }, (err, fromCache, path) => {
 

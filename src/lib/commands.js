@@ -27,6 +27,7 @@ const NwBuilderBuild = (path, options, callback) => {
 
         this.version = version;
         this.flavor = flavor;
+        this.mirror = options.mirror;
 
         this.targets = [];
 
@@ -84,7 +85,8 @@ const NwBuilderBuild = (path, options, callback) => {
                 version: this.version,
                 platform: platform,
                 arch: arch,
-                flavor: this.flavor
+                flavor: this.flavor,
+                mirror: this.mirror
             }, cb.expect(4));
 
             if(err) {
@@ -180,6 +182,7 @@ const NwBuilderRun = (args, options, callback) => {
 
         this.version = version;
         this.flavor = flavor;
+        this.mirror = options.mirror;
 
         console.log(this);
 
@@ -187,7 +190,8 @@ const NwBuilderRun = (args, options, callback) => {
             version: this.version,
             platform: this.platform,
             arch: this.arch,
-            flavor: this.flavor
+            flavor: this.flavor,
+            mirror: this.mirror
         }, cb.expect(4));
 
         if(err) {
