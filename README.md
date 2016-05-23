@@ -25,8 +25,10 @@ node.js 4.1+ is required.
 ## Install
 
 ```shell
-$ npm install evshiron/nwjs-builder -g
+$ npm install nwjs-builder -g
 ```
+
+The `npm install evshiron/nwjs-builder` method is deprecated, which will no longer work because there is no prebuilt stuff in the repo, and `.npmignore` will simply ignore `./src/`, resulting in an empty installation.
 
 ## Usage
 
