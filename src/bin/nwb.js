@@ -44,6 +44,11 @@ commander.command('caches')
 .action(NWD.commands.caches);
 
 commander.command('download')
+.option('-v,--version <version>')
+.option('-p,--platform <platform>')
+.option('-a,--arch <arch>')
+.option('-f,--flavor <flavor>')
+.option('-m,--mirror <mirror_url>')
 .action(NWD.commands.download);
 
 commander.command('nwbuild [PATH_OR_ARGS...]')
@@ -52,6 +57,7 @@ commander.command('nwbuild [PATH_OR_ARGS...]')
 .option('-r,--run', 'Runs nw.js at PATH for the current platform.')
 .option('-o,--output-dir <DIR_OUTPUT>', 'The output directory, defaults to PATH\'s parent.')
 .option('-i, --include <DIR_SRC>:<GLOB>[:DIR_DEST]', 'Include extra files matching GLOB from DIR_SRC to DIR_BUILD/DIR_DEST.', IncludeHandler, [])
+.option('-m,--mirror <URL_MIRROR>', 'Where to download the packages from (default is http://dl.nwjs.io)')
 .option('--with-ffmpeg', 'Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.')
 .option('--side-by-side', 'Build application with side by side packaging.')
 .option('--production', 'Reinstall dependencies for production purpose.')
@@ -72,7 +78,8 @@ commander.command('nwbuild [PATH_OR_ARGS...]')
         sideBySide: command.sideBySide,
         production: command.production,
         winIco: command.winIco,
-        macIcns: command.macIcns
+        macIcns: command.macIcns,
+        mirror: command.mirror
     };
 
     NWB.commands.nwbuild(pathOrArgs, options);
