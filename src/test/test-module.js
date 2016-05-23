@@ -9,7 +9,7 @@ const DIR_TEST = dirname(module.filename);
 
 describe('module', function() {
 
-    describe('nwbuild', function() {
+    describe('nwbuild#build', function() {
 
         this.timeout(300000);
 
@@ -48,6 +48,27 @@ describe('module', function() {
                 if(!existsSync('./temp/build/nwb-test-win-ia32/lib/build/darwin.js')) throw('ERROR_FILE_NOT_EXISTS');
 
                 done();
+
+            });
+
+        });
+
+    });
+
+    describe('nwbuild#run', function() {
+
+        this.timeout(300000);
+
+        it('should launch and exit with code 233', function(done) {
+
+            NWB.commands.nwbuild(['--remote-debugging-port=9222', './assets/nwb-test/', '233'], {
+                run: true,
+                version: '0.14.4-sdk'
+            }, (err, code) => {
+
+                if(err) throw err;
+                else if(code == 233) return done();
+                else throw new Error('ERROR_EXIT_CODE_UNEXPECTED');
 
             });
 
