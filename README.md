@@ -61,6 +61,7 @@ $ nwb nwbuild -h
     -r,--run                                   Runs nw.js at PATH for the current platform.
     -o,--output-dir <DIR_OUTPUT>               The output directory, defaults to PATH's parent.
     -i, --include <DIR_SRC>:<GLOB>[:DIR_DEST]  Include extra files matching GLOB from DIR_SRC to DIR_BUILD/DIR_DEST.
+    -m, --mirror <URL_MIRROR>                  Where to download the nwjs packages from (default: http://dl.nwjs.io)
     --with-ffmpeg                              Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
     --side-by-side                             Build application with side by side packaging.
     --production                               Reinstall dependencies for production purpose.
