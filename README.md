@@ -51,7 +51,7 @@ $ nwb caches
 
 $ nwb nwbuild -h
 
-  Usage: nwbuild [options] [PATH]
+  Usage: nwbuild [options] [PATH_OR_ARGS...]
 
   Options:
 
@@ -69,6 +69,12 @@ $ nwb nwbuild -h
 
 # Launch application.
 $ nwb nwbuild -v 0.14.4-sdk -r ./build/
+
+# Launch application with arguments.
+$ nwb nwbuild -v 0.14.4-sdk -r ./build/ -a bbb
+
+# Launch application with arguments and remote debugging enabled.
+$ nwb nwbuild -v 0.14.4-sdk -r -- --remote-debugging-port=9222 ./build/ -a bbb
 
 # Build application for win32,osx64.
 $ nwb nwbuild -v 0.14.4-sdk -p win32,osx64 ./build/
