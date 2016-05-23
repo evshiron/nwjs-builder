@@ -19,7 +19,8 @@ const NwBuilderBuild = (path, command, callback) => {
             version: null,
             flavor: null,
             targets: [],
-            path: null
+            path: null,
+            mirror: null
         };
 
         var [err, version, flavor] = yield ParseNwBuilderVersion(command.version, cb.expect(3));
@@ -30,6 +31,7 @@ const NwBuilderBuild = (path, command, callback) => {
 
         options.version = version;
         options.flavor = flavor;
+        options.mirror = command.mirror;
 
         if(command.platforms) {
 
@@ -90,7 +92,8 @@ const NwBuilderBuild = (path, command, callback) => {
                 version: options.version,
                 platform: platform,
                 arch: arch,
-                flavor: options.flavor
+                flavor: options.flavor,
+                mirror: options.mirror
             }, cb.expect(4));
 
             if(err) {
@@ -184,6 +187,7 @@ const NwBuilderRun = (path, command, callback) => {
             platform: null,
             arch: null,
             flavor: null,
+            mirror: null,
             path: null
         };
 
@@ -202,6 +206,7 @@ const NwBuilderRun = (path, command, callback) => {
 
         options.version = version;
         options.flavor = flavor;
+        options.mirror = command.mirror;
 
         // Parse path.
 
@@ -213,7 +218,8 @@ const NwBuilderRun = (path, command, callback) => {
             version: options.version,
             platform: options.platform,
             arch: options.arch,
-            flavor: options.flavor
+            flavor: options.flavor,
+            mirror: options.mirror
         }, cb.expect(4));
 
         if(err) {
@@ -260,14 +266,10 @@ const nwbuild = (path, command, callback) => {
     }
 
     if(command.run) {
-
         NwBuilderRun(path, command, callback);
-
     }
     else {
-
         NwBuilderBuild(path, command, callback);
-
     }
 
 }
