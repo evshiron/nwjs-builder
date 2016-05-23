@@ -162,9 +162,9 @@ const DownloadAndExtractFFmpeg = (destination, {
 
 };
 
-const LaunchExecutable = (executable, path, callback) => {
+const LaunchExecutable = (executable, args, callback) => {
 
-    const cp = spawn(executable, [path]);
+    const cp = spawn(executable, args);
 
     if(!cp) return callback(new Error('ERROR_LAUNCH_FAILED'));
 

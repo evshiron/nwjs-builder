@@ -46,7 +46,7 @@ commander.command('caches')
 commander.command('download')
 .action(NWD.commands.download);
 
-commander.command('nwbuild [PATH]')
+commander.command('nwbuild [PATH_OR_ARGS...]')
 .option('-v,--version <VERSION>', 'The nw.js version, eg. 0.8.4, defaults to the stable version.')
 .option('-p,--platforms <PLATFORMS>', 'Platforms to build, comma-sperated, eg. win32,win64,osx32,osx64,linux32,linux64, defaults to the current platform.')
 .option('-r,--run', 'Runs nw.js at PATH for the current platform.')
@@ -60,7 +60,24 @@ commander.command('nwbuild [PATH]')
 //.option('-f,--forceDownload', 'Force download of NW.js')
 //.option('--cacheDir', 'The cache folder')
 //.option('--quiet', 'Disables logging')
-.action(NWB.commands.nwbuild);
+.action((pathOrArgs, command) => {
+
+    const options = {
+        version: typeof command.version == 'string' ? command.version : null,
+        platforms: command.platforms,
+        run: command.run,
+        outputDir: command.outputDir,
+        includes: command.include,
+        withFFmpeg: command.withFfmpeg,
+        sideBySide: command.sideBySide,
+        production: command.production,
+        winIco: command.winIco,
+        macIcns: command.macIcns
+    };
+
+    NWB.commands.nwbuild(pathOrArgs, options);
+
+});
 
 if(process.argv.length <= 2) {
     commander.help();
