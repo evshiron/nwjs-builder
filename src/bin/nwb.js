@@ -44,6 +44,11 @@ commander.command('caches')
 .action(NWD.commands.caches);
 
 commander.command('download')
+.option('-v,--version <version>')
+.option('-p,--platform <platform>')
+.option('-a,--arch <arch>')
+.option('-f,--flavor <flavor>')
+.option('-m,--mirror <mirror_url>')
 .action(NWD.commands.download);
 
 commander.command('nwbuild [PATH_OR_ARGS...]')
