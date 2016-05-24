@@ -3,7 +3,7 @@
 
 const NWD = require('nwjs-download');
 
-const Flow = require('node-flow');
+const Flow = require('@evshiron/node-flow');
 
 const MatchNwBuilderVersion = (versions, nwBuilderVersion) => {
 

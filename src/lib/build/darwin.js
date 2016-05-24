@@ -12,7 +12,7 @@ const glob = require('glob');
 
 const plist = require('plist');
 
-const Flow = require('node-flow');
+const Flow = require('@evshiron/node-flow');
 
 const NWD = require('nwjs-download');
 

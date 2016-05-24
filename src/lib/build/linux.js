@@ -10,7 +10,7 @@ const temp = require('temp');
 
 const glob = require('glob');
 
-const Flow = require('node-flow');
+const Flow = require('@evshiron/node-flow');
 
 const NWD = require('nwjs-download');
 
