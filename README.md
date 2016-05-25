@@ -107,6 +107,11 @@ The following manifest options are used to modify executable information, powere
     "description": "nwb-test",
     // Additional options.
     "nwjsBuilder": {
+        // Optionally overwrite `name`, `version` and `description`.
+        "productName": "",
+        "productVersion": "",
+        "fileDescription": "",
+        // Other options.
         "copyright": "",
         "internalName": "",
         "fileVersion": "",
