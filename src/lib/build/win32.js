@@ -120,6 +120,18 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
                 const properties = this.manifest.nwjsBuilder;
 
+                if(properties.productName) {
+                    rcOptions['version-string'].ProductName = properties.productName;
+                }
+
+                if(properties.productVersion) {
+                    rcOptions['product-version'] = properties.productVersion;
+                }
+
+                if(properties.fileDescription) {
+                    rcOptions['version-string'].FileDescription = properties.fileDescription;
+                }
+
                 if(properties.copyright) {
                     rcOptions['version-string'].LegalCopyright = properties.copyright;
                 }
