@@ -11,6 +11,9 @@ describe('nwb', function() {
 
             cp.exec('node ./bin/nwb.js stable', function(err, stdout, stderr) {
 
+                console.log(stdout);
+                console.error(stderr);
+
                 if(err) throw err;
 
                 done();
@@ -22,6 +25,9 @@ describe('nwb', function() {
         it('should download the stable version and exit with code 0', function(done) {
 
             cp.exec('node ./bin/nwb.js download', function(err, stdout, stderr) {
+
+                console.log(stdout);
+                console.error(stderr);
 
                 if(err) throw err;
 

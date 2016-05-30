@@ -38,14 +38,14 @@ describe('module', function() {
 
                 if(err) throw err;
 
-                if(!existsSync('./temp/build/nwb-test-win-ia32/README.md')) throw('ERROR_FILE_NOT_EXISTS');
-                if(!existsSync('./temp/build/nwb-test-win-ia32/win32.js')) throw('ERROR_FILE_NOT_EXISTS');
-                if(!existsSync('./temp/build/nwb-test-win-ia32/linux.js')) throw('ERROR_FILE_NOT_EXISTS');
-                if(!existsSync('./temp/build/nwb-test-win-ia32/darwin.js')) throw('ERROR_FILE_NOT_EXISTS');
-                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/index.js')) throw('ERROR_FILE_NOT_EXISTS');
-                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/build/win32.js')) throw('ERROR_FILE_NOT_EXISTS');
-                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/build/linux.js')) throw('ERROR_FILE_NOT_EXISTS');
-                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/build/darwin.js')) throw('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/README.md')) throw new Error('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/win32.js')) throw new Error('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/linux.js')) throw new Error('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/darwin.js')) throw new Error('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/index.js')) throw new Error('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/build/win32.js')) throw new Error('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/build/linux.js')) throw new Error('ERROR_FILE_NOT_EXISTS');
+                if(!existsSync('./temp/build/nwb-test-win-ia32/lib/build/darwin.js')) throw new Error('ERROR_FILE_NOT_EXISTS');
 
                 done();
 
