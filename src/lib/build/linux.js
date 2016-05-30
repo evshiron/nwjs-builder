@@ -6,6 +6,8 @@ const { rename } = require('fs');
 const { readJson, emptyDir, copy, remove } = require('fs-extra');
 const { exec } = require('child_process');
 
+const format = require('string-template');
+
 const temp = require('temp');
 
 const glob = require('glob');
@@ -18,6 +20,7 @@ const NWB = require('../../');
 
 const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
     outputDir = null,
+    outputName = null,
     includes = null,
     withFFmpeg = false,
     sideBySide = false,
@@ -44,7 +47,13 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
             this.manifest = manifest;
             this.target = NWD.GetTarget(platform, arch);
-            this.buildName = manifest.name + '-' + this.target;
+            this.buildName = format(outputName ? outputName : '{name}-{target}', {
+                name: manifest.name,
+                version: manifest.version,
+                platform: platform,
+                arch: arch,
+                target: this.target
+            });
             this.buildDir = outputDir ? join(outputDir, this.buildName) : join(dirname(path), this.buildName);
 
         }
