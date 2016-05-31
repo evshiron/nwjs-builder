@@ -23,6 +23,7 @@ const NWB = require('../../');
 const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
     outputDir = null,
     outputName = null,
+    executableName = null,
     includes = null,
     withFFmpeg = false,
     sideBySide = false,
@@ -351,7 +352,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
             let err;
 
-            const newName = this.manifest.name + '.exe';
+            const newName = (executableName ? executableName : this.manifest.name) + '.exe';
 
             console.log(`${ majorIdx++ }: Rename application to ${ newName }`);
 

@@ -21,6 +21,7 @@ const NWB = require('../../');
 const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
     outputDir = null,
     outputName = null,
+    executableName = null,
     includes = null,
     withFFmpeg = false,
     sideBySide = false,
@@ -250,7 +251,7 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
             let err;
 
-            const newName = this.manifest.name;
+            const newName = executableName ? executableName : this.manifest.name;
 
             console.log(`${ majorIdx++ }: Rename application to ${ newName }`);
 

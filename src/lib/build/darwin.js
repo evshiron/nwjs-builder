@@ -23,6 +23,7 @@ const NWB = require('../../');
 const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
     outputDir = null,
     outputName = null,
+    executableName = null,
     includes = null,
     withFFmpeg = false,
     sideBySide = false,
@@ -301,7 +302,7 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
             let err;
 
-            const newName = this.manifest.name + '.app';
+            const newName = (executableName ? executableName : this.manifest.name) + '.app';
 
             console.log(`${ majorIdx++ }: Rename application to ${ newName }`);
 
