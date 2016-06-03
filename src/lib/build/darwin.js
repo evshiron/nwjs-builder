@@ -2,7 +2,7 @@
 'use strict';
 
 const { dirname, join, resolve } = require('path');
-const { writeFile, readFile, rename } = require('fs');
+const { exists, writeFile, readFile, rename } = require('fs');
 const { readJson, emptyDir, copy, remove } = require('fs-extra');
 const { exec } = require('child_process');
 
@@ -272,14 +272,32 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
 
         if(macIcns) {
 
-            let err;
+            let err, dest;
 
             console.log(`${ majorIdx++ }: Copy .icns to ${ this.buildDir }`);
 
-            err = yield copy(macIcns, join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.icns'), cb.single);
+            // For nw.js 0.12.x.
+            dest = join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'nw.icns');
+            if(yield exists(dest, cb.single)) {
 
-            if(err) {
-                return callback(err);
+                err = yield copy(macIcns, dest, cb.single);
+
+                if(err) {
+                    return callback(err);
+                }
+
+            }
+
+            // For modern nw.js.
+            dest = join(this.buildDir, 'nwjs.app', 'Contents', 'Resources', 'app.icns');
+            if(yield exists(dest, cb.single)) {
+
+                err = yield copy(macIcns, dest, cb.single);
+
+                if(err) {
+                    return callback(err);
+                }
+
             }
 
         }
