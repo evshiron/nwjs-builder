@@ -113,7 +113,7 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
             // Overwrite ffmpeg.dll.
 
-            err = yield copy(join(tempDir, 'libffmpeg.so'), join(this.buildDir, 'libffmpeg.so'), {
+            err = yield copy(join(tempDir, 'libffmpeg.so'), join(this.buildDir, 'lib', 'libffmpeg.so'), {
                 clobber: true
             }, cb.single);
 
