@@ -183,7 +183,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
             err = yield rcedit(join(this.buildDir, 'nw.exe'), rcOptions, cb.single);
 
             if(err) {
-                return callback(err);
+                console.warn(err);
             }
 
         }
