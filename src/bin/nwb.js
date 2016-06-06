@@ -60,6 +60,7 @@ commander.command('nwbuild [PATH_OR_ARGS...]')
 .option('-m,--mirror <URL_MIRROR>', 'Where the binaries are downloaded from, defaults to http://dl.nwjs.io.')
 .option('--output-name <NAME_OUTPUT>', 'Specify a template for output naming, defaults to {name}-{target}.')
 .option('--executable-name <NAME_EXECUTABLE>', 'Specify the name for the final executable, defaults to manifest.name.')
+.option('--output-format <DIR|ZIP>', 'Specify the output format, defaults to DIR.')
 .option('--with-ffmpeg', 'Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.')
 .option('--side-by-side', 'Build application with side by side packaging.')
 .option('--production', 'Reinstall dependencies for production purpose.')
@@ -77,6 +78,7 @@ commander.command('nwbuild [PATH_OR_ARGS...]')
         outputDir: command.outputDir,
         outputName: command.outputName,
         executableName: command.executableName,
+        outputFormat: command.outputFormat,
         includes: command.include,
         withFFmpeg: command.withFfmpeg,
         sideBySide: command.sideBySide,

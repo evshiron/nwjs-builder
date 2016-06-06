@@ -24,6 +24,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
     outputDir = null,
     outputName = null,
     executableName = null,
+    outputFormat = null,
     includes = null,
     withFFmpeg = false,
     sideBySide = false,
@@ -357,6 +358,30 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
             console.log(`${ majorIdx++ }: Rename application to ${ newName }`);
 
             err = yield rename(join(this.buildDir, 'nw.exe'), join(this.buildDir, newName), cb.single);
+
+            if(err) {
+                return callback(err);
+            }
+
+        }
+
+        if(outputFormat == 'ZIP') {
+
+            let err;
+
+            const zipFile = `${ this.buildDir }.zip`;
+
+            console.log(`${ majorIdx++ }: Zip to ${ zipFile }`);
+
+            [err, ] = yield NWB.util.ZipDirectory(this.buildDir, [], zipFile, cb.expect(2));
+
+            if(err) {
+                return callback(err);
+            }
+
+            console.log(`${ majorIdx++ }: Clean up ${ this.buildDir }`);
+
+            err = yield remove(this.buildDir, cb.single);
 
             if(err) {
                 return callback(err);

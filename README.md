@@ -64,6 +64,7 @@ $ nwb nwbuild -h
     -m,--mirror <URL_MIRROR>                  Where the binaries are downloaded from, defaults to http://dl.nwjs.io.
     --output-name <NAME_OUTPUT>               Specify a template for output naming, defaults to {name}-{target}.
     --executable-name <NAME_EXECUTABLE>       Specify the name for the final executable, defaults to manifest.name.
+    --output-format <DIR|ZIP>                 Specify the output format, defaults to DIR.
     --with-ffmpeg                             Fetch nwjs-ffmpeg-prebuilt to support .mp3 etc.
     --side-by-side                            Build application with side by side packaging.
     --production                              Reinstall dependencies for production purpose.
