@@ -10,7 +10,7 @@ const { mkdirsSync } = require('fs-extra');
 
 const { spawn } = require('child_process');
 
-const Flow = require('@evshiron/node-flow');
+const Flow = require('node-async-flow');
 
 const NWD = require('nwjs-download');
 

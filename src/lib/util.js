@@ -11,7 +11,7 @@ const tar = require('tar-fs');
 const DecompressZip = require('decompress-zip');
 const archiver = require('archiver');
 
-const Flow = require('@evshiron/node-flow');
+const Flow = require('node-async-flow');
 
 const ZipDirectory = (path, excludes, destination, callback) => {
 

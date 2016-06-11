@@ -7,7 +7,7 @@ const { ParseNwBuilderVersion } = require('./nwbuild');
 
 const NWD = require('nwjs-download');
 
-const Flow = require('@evshiron/node-flow');
+const Flow = require('node-async-flow');
 
 const NWB = require('../');
 

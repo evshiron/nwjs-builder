@@ -140,7 +140,7 @@ PRs and issues are always appreciated.
 
 See also:
 
-* [evshiron/node-flow](https://github.com/evshiron/node-flow)
+* [evshiron/node-async-flow](https://github.com/evshiron/node-async-flow)
 * [evshiron/nwjs-download](https://github.com/evshiron/nwjs-download)
 
 ## License
