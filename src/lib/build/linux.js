@@ -80,7 +80,11 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
 
             console.log(`${ majorIdx++ }: Copy binary from ${ binaryDir }`);
 
-            err = yield copy(binaryDir, this.buildDir, {}, cb.single);
+            const REGEX_FILTER_DONE = /\/.done/;
+
+            err = yield copy(binaryDir, this.buildDir, {
+                filter: (path) => !REGEX_FILTER_DONE.test(path)
+            }, cb.single);
 
             if(err) {
                 return callback(err);

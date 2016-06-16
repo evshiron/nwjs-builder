@@ -84,10 +84,11 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
             console.log(`${ majorIdx++ }: Copy binary from ${ binaryDir }`);
 
             const REGEX_FILTER_I18N = /\/nwjs\.app\/Contents\/Resources\/[a-zA-Z0-9_]+\.lproj/;
+            const REGEX_FILTER_DONE = /\/.done/;
 
             err = yield copy(binaryDir, this.buildDir, {
                 // Ignore i18n files.
-                filter: (path) => !REGEX_FILTER_I18N.test(path)
+                filter: (path) => !REGEX_FILTER_I18N.test(path) && !REGEX_FILTER_DONE.test(path)
             }, cb.single);
 
             if(err) {

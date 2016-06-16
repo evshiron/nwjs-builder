@@ -39,6 +39,9 @@ describe('module', function() {
 
                 if(err) throw err;
 
+                if(existsSync('./temp/build/nwb-test-win-ia32/.done')) throw new Error('ERROR_DONE_FILE_EXISTS');
+                if(existsSync('./temp/build/nwb-test-linux-ia32/.done')) throw new Error('ERROR_DONE_FILE_EXISTS');
+                if(existsSync('./temp/build/nwb-test-osx-x64/.done')) throw new Error('ERROR_DONE_FILE_EXISTS');
                 if(!existsSync('./temp/build/nwb-test-win-ia32/NWBTest.exe')) throw new Error('ERROR_FILE_NOT_EXISTS');
                 if(!existsSync('./temp/build/nwb-test-linux-ia32/NWBTest')) throw new Error('ERROR_FILE_NOT_EXISTS');
                 if(!existsSync('./temp/build/nwb-test-osx-x64/NWBTest.app')) throw new Error('ERROR_FILE_NOT_EXISTS');
