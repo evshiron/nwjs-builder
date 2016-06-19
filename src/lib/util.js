@@ -43,13 +43,16 @@ const ZipDirectory = (path, excludes, destination, callback) => {
             if(stats.isFile()) {
 
                 archive.file(src, {
-                    name: file
+                    name: file,
+                    mode: stats.mode
                 });
 
             }
             else if(stats.isDirectory()) {
 
-                archive.directory(src, file, {});
+                archive.directory(src, file, {
+                    mode: stats.mode
+                });
 
             }
 
