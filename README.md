@@ -138,6 +138,14 @@ If anything doesn't work properly, feel free to open issues and provide enough i
 
 PRs and issues are always appreciated.
 
+**For feature requests:**
+
+`nwjs-builder` is aimed at running/packaging nw.js applications, and is designed to work with a directory that is well-prepared to be packaged.
+
+I will usually refuse requests for a feature which is achievable by other popular node.js modules, and you can use `build.sh`, `Makefile`, `gulp` or `grunt` to organize your building pipeline. I don't want to add an option just to proxy it to another module.
+
+Platform-specified and configuration-rich features like making `.dmg` (Mac OS X only), `.exe` or `.deb` will usually be refused too. I don't want to learn how to integrate something I will rarely use and decide to leave it to you :)
+
 See also:
 
 * [evshiron/node-async-flow](https://github.com/evshiron/node-async-flow)
