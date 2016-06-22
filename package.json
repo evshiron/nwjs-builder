@@ -31,14 +31,14 @@
   "homepage": "https://github.com/evshiron/nwjs-builder#readme",
   "dependencies": {
     "archiver": "^1.0.0",
-    "babel-polyfill": "^6.9.0",
+    "babel-plugin-transform-runtime": "^6.9.0",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
     "decompress-zip": "^0.3.0",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
     "node-async-flow": "^1.2.1",
-    "nwjs-download": "^1.4.0",
+    "nwjs-download": "^1.4.4",
     "plist": "^1.2.0",
     "rcedit": "^0.5.0",
     "string-template": "^1.0.0",
@@ -53,6 +53,9 @@
   "babel": {
     "presets": [
       "es2015"
+    ],
+    "plugins": [
+      "transform-runtime"
     ]
   }
 }

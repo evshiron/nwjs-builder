@@ -1,8 +1,6 @@
 
 'use strict';
 
-if(!global._babelPolyfill) require('babel-polyfill');
-
 const { homedir } = require('os');
 const { basename, join } = require('path');
 const { exists, mkdir } = require('fs');
