@@ -121,25 +121,7 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
                 return callback(err);
             }
 
-            // Find original libffmpeg.dylib.
-
-            err = yield glob(join(this.buildDir, 'nwjs.app/**/libffmpeg.dylib'), {}, (err, files) => {
-
-                if(err) {
-                    return cb.single(err);
-                }
-
-                if(files && files[0]) {
-
-                    // Overwrite libffmpeg.dylib.
-
-                    copy(join(tempDir, 'libffmpeg.dylib'), files[0], {
-                        clobber: true
-                    }, cb.single);
-
-                }
-
-            });
+            err = yield NWB.InstallFFmpeg(tempDir, this.buildDir, platform, cb.single);
 
             if(err) {
                 return callback(err);

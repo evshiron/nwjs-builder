@@ -116,11 +116,7 @@ const BuildLinuxBinary = (path, binaryDir, version, platform, arch, {
                 return callback(err);
             }
 
-            // Overwrite ffmpeg.dll.
-
-            err = yield copy(join(tempDir, 'libffmpeg.so'), join(this.buildDir, 'lib', 'libffmpeg.so'), {
-                clobber: true
-            }, cb.single);
+            err = yield NWB.InstallFFmpeg(tempDir, this.buildDir, platform, cb.single);
 
             if(err) {
                 return callback(err);

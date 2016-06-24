@@ -4,9 +4,11 @@
 const { homedir } = require('os');
 const { basename, join } = require('path');
 const { exists, mkdir } = require('fs');
-const { mkdirsSync } = require('fs-extra');
+const { mkdirsSync, copy } = require('fs-extra');
 
 const { spawn } = require('child_process');
+
+const glob = require('glob');
 
 const Flow = require('node-async-flow');
 
@@ -161,6 +163,51 @@ const DownloadAndExtractFFmpeg = (destination, {
 
 };
 
+const InstallFFmpeg = (sourceDir, destinationDir, platform, callback) => {
+
+    if(platform == 'win32') {
+
+        copy(join(sourceDir, 'ffmpeg.dll'), join(destinationDir, 'ffmpeg.dll'), {
+            clobber: true
+        }, callback);
+
+    }
+    else if(platform == 'linux') {
+
+        copy(join(sourceDir, 'libffmpeg.so'), join(destinationDir, 'lib', 'libffmpeg.so'), {
+            clobber: true
+        }, callback);
+
+    }
+    else if(platform == 'darwin') {
+
+        glob(join(destinationDir, 'nwjs.app/**/libffmpeg.dylib'), {}, (err, files) => {
+
+            if(err) {
+                return calback(err);
+            }
+
+            if(files && files[0]) {
+
+                // Overwrite libffmpeg.dylib.
+
+                copy(join(sourceDir, 'libffmpeg.dylib'), files[0], {
+                    clobber: true
+                }, callback);
+
+            }
+
+        });
+
+    }
+    else {
+
+        return callback(new Error('ERROR_PLATFORM_NOT_SUPPORTED'));
+
+    }
+
+};
+
 const LaunchExecutable = (executable, args, callback) => {
 
     const cp = spawn(executable, args);
@@ -181,6 +228,7 @@ Object.assign(module.exports, {
     ExtractBinary,
     DownloadAndExtractBinary,
     DownloadAndExtractFFmpeg,
+    InstallFFmpeg,
     BuildWin32Binary: require('./build/win32'),
     BuildLinuxBinary: require('./build/linux'),
     BuildDarwinBinary: require('./build/darwin'),

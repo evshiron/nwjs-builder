@@ -2,6 +2,9 @@
 'use strict';
 
 const { resolve } = require('path');
+const { copy } = require('fs-extra');
+
+const temp = require('temp');
 
 const { ParseNwBuilderVersion } = require('./nwbuild');
 
@@ -173,7 +176,7 @@ const NwBuilderRun = (args, options, callback) => {
 
     Flow(function*(cb) {
 
-        let err, version, flavor, binaryDir, code;
+        let err, version, flavor, binaryDir, workingDir, code;
 
         // Parse platform and arch.
 
@@ -205,7 +208,51 @@ const NwBuilderRun = (args, options, callback) => {
             return callback(err);
         }
 
-        const executable = NWB.GetExecutable(binaryDir, this.platform);
+        [err, workingDir] = yield temp.mkdir(null, cb.expect(2));
+
+        if(err) {
+            return callback(err);
+        }
+
+        console.log(`workingDir: ${ workingDir }`);
+
+        err = yield copy(binaryDir, workingDir, cb.single);
+
+        if(options.withFFmpeg) {
+
+            let err, tempDir;
+
+            console.log(`Install ffmpeg for nw.js ${ version }`);
+
+            // Make a temporary directory.
+
+            [err, tempDir] = yield temp.mkdir(null, cb.expect(2));
+
+            if(err) {
+                return callback(err);
+            }
+
+            // Extract FFmpeg to temporary directory.
+
+            [err, , ] = yield NWB.DownloadAndExtractFFmpeg(tempDir, {
+                version: this.version,
+                platform: this.platform,
+                arch: this.arch
+            }, cb.expect(3));
+
+            if(err) {
+                return callback(err);
+            }
+
+            err = yield NWB.InstallFFmpeg(tempDir, workingDir, this.platform, cb.single);
+
+            if(err) {
+                return callback(err);
+            }
+
+        }
+
+        const executable = NWB.GetExecutable(workingDir, this.platform);
 
         [err, code] = yield NWB.LaunchExecutable(executable, args, cb.expect(2));
 

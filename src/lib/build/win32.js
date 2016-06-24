@@ -217,11 +217,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
                 return callback(err);
             }
 
-            // Overwrite ffmpeg.dll.
-
-            err = yield copy(join(tempDir, 'ffmpeg.dll'), join(this.buildDir, 'ffmpeg.dll'), {
-                clobber: true
-            }, cb.single);
+            err = yield NWB.InstallFFmpeg(tempDir, this.buildDir, platform, cb.single);
 
             if(err) {
                 return callback(err);
