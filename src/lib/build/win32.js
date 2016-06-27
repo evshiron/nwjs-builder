@@ -83,7 +83,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
             console.log(`${ majorIdx++ }: Copy binary from ${ binaryDir }`);
 
-            const REGEX_FILTER_DONE = /\/.done/;
+            const REGEX_FILTER_DONE = /[\\\/]\.done/;
 
             err = yield copy(binaryDir, this.buildDir, {
                 filter: (path) => !REGEX_FILTER_DONE.test(path)
