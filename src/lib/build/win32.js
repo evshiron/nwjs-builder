@@ -13,6 +13,7 @@ const temp = require('temp');
 const glob = require('glob');
 
 const rcedit = require('rcedit');
+const resourceHacker = require('node-resourcehacker');
 
 const Flow = require('node-async-flow');
 
@@ -115,8 +116,7 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
                     // ProductName: manifest.name,
                     // ProductVersion: manifest.version,
                     // SpecialBuild: undefined,
-                },
-                'icon': winIco ? winIco : null
+                }
             };
 
             if(this.manifest.name) {
@@ -189,6 +189,23 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
 
             if(err) {
                 console.warn(err);
+            }
+
+            if(winIco) {
+
+                err = yield resourceHacker({
+                    operation: 'addoverwrite',
+                    input: join(this.buildDir, 'nw.exe'),
+                    output: join(this.buildDir, 'nw.exe'),
+                    resource: winIco,
+                    resourceType: 'ICONGROUP',
+                    resourceName: 'IDR_MAINFRAME'
+                }, cb.single);
+
+                if(err) {
+                    console.warn(err);
+                }
+
             }
 
         }
