@@ -246,6 +246,22 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
             pl['CFBundleShortVersionString'] = this.manifest.version;
             pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + this.manifest.name.toLowerCase();
 
+            if(this.manifest.nwjsBuilder) {
+
+                const properties = this.manifest.nwjsBuilder;
+
+                if(properties.productName) {
+                    pl['CFBundleDisplayName'] = properties.productName;
+                    pl['CFBundleName'] = properties.productName;
+                }
+
+                if(properties.productVersion) {
+                    pl['CFBundleVersion'] = properties.productVersion;
+                    pl['CFBundleShortVersionString'] = properties.productVersion;
+                }
+
+            }
+
             err = yield writeFile(infoFile, plist.build(pl), cb.single);
 
             if(err) {
