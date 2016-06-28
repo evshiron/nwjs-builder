@@ -5,6 +5,7 @@ const { dirname, join, resolve } = require('path');
 const { exists, writeFile, readFile, rename } = require('fs');
 const { readJson, emptyDir, copy, remove } = require('fs-extra');
 const { exec } = require('child_process');
+const assert = require('assert');
 
 const format = require('string-template');
 
@@ -239,6 +240,9 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
             if(err) {
                 return callback(err);
             }
+
+            assert(this.manifest.name);
+            assert(this.manifest.version);
 
             pl['CFBundleDisplayName'] = this.manifest.name;
             pl['CFBundleName'] = this.manifest.name;
