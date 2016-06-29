@@ -115,6 +115,7 @@ The following manifest options are used to modify executable information, powere
         "productVersion": "",
         "fileDescription": "",
         // Other options.
+        // For Windows.
         "copyright": "",
         "internalName": "",
         "fileVersion": "",
@@ -123,7 +124,9 @@ The following manifest options are used to modify executable information, powere
         "legalTrademarks": "",
         "originalFilename": "",
         "privateBuild": "",
-        "specialBuild": ""
+        "specialBuild": "",
+        // For Mac OS X.
+        "bundleIdentifier": ""
     }
 }
 ```

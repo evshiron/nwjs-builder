@@ -257,12 +257,15 @@ const BuildDarwinBinary = (path, binaryDir, version, platform, arch, {
                 if(properties.productName) {
                     pl['CFBundleDisplayName'] = properties.productName;
                     pl['CFBundleName'] = properties.productName;
-                    pl['CFBundleIdentifier'] = 'io.nwjs-builder.' + properties.productName.toLowerCase();
                 }
 
                 if(properties.productVersion) {
                     pl['CFBundleVersion'] = properties.productVersion;
                     pl['CFBundleShortVersionString'] = properties.productVersion;
+                }
+
+                if(properties.bundleIdentifier) {
+                    pl['CFBundleIdentifier'] = properties.bundleIdentifier;
                 }
 
             }
