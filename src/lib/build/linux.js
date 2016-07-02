@@ -8,7 +8,7 @@ const { exec } = require('child_process');
 
 const format = require('string-template');
 
-const temp = require('temp');
+const temp = require('temp').track();
 
 const glob = require('glob');
 

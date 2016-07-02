@@ -4,7 +4,7 @@
 const { resolve } = require('path');
 const { copy } = require('fs-extra');
 
-const temp = require('temp');
+const temp = require('temp').track();
 
 const { ParseNwBuilderVersion } = require('./nwbuild');
 
