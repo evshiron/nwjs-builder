@@ -1,4 +1,4 @@
-# nwjs-builder [![Travis CI](https://travis-ci.org/evshiron/nwjs-builder.svg)](https://travis-ci.org/evshiron/nwjs-builder) ![NPM Version](https://img.shields.io/npm/v/nwjs-builder.svg) ![NPM Downloads](https://img.shields.io/npm/dm/nwjs-builder.svg)
+# nwjs-builder [![Travis CI](https://travis-ci.org/evshiron/nwjs-builder.svg)](https://travis-ci.org/evshiron/nwjs-builder) [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/evshiron/nwjs-builder?svg=true)](https://ci.appveyor.com/project/evshiron/nwjs-builder) ![NPM Version](https://img.shields.io/npm/v/nwjs-builder.svg) ![NPM Downloads](https://img.shields.io/npm/dm/nwjs-builder.svg)
 
 A command line utility for building nw.js applications, compatible with `nwjs/nw-builder`, and maybe better.
 
