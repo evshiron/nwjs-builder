@@ -1,12 +1,13 @@
 
 'use strict';
 
-const { homedir } = require('os');
 const { basename, join } = require('path');
 const { exists, mkdir } = require('fs');
 const { mkdirsSync, copy } = require('fs-extra');
 
 const { spawn } = require('child_process');
+
+const homedir = require('os-homedir');
 
 const glob = require('glob');
 
