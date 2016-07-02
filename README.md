@@ -2,7 +2,7 @@
 
 A command line utility for building nw.js applications, compatible with `nwjs/nw-builder`, and maybe better.
 
-Tested to work for node.js 0.10/0.11/4.0/5.0/6.0 on Windows, Linux and Mac OS X.
+Tested to work for node.js ~~0.10/0.11/4.0/~~4.1/5.0/6.0 on Windows, Linux and Mac OS X.
 
 [![NPM](https://nodei.co/npm/nwjs-builder.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/nwjs-builder)
 
