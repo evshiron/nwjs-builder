@@ -27,7 +27,7 @@ describe('nwb', function() {
 
         this.timeout(300000);
 
-        it('should build in "./temp/build/nwb-test-v0.0.1-win-ia32"', function(done) {
+        it('should build in "./temp/build/" as .zip', function(done) {
 
             cp.exec('node ./bin/nwb.js nwbuild -v 0.14.4-sdk -p win32,linux32,osx64 --output-dir "./temp/build/" --output-name "{name}-v{version}-{target}" --output-format ZIP ./assets/nwb-test/', function(err, stdout, stderr) {
 
