@@ -1,11 +1,27 @@
 language: node_js
 node_js:
+    - "0.10"
+    - "0.11"
+    - "4.0"
     - "4.1"
-    - "5.0"
-    - "6.0"
+    - "4"
+    - "5"
+    - "6"
+
+sudo: required
+dist: trusty
+
+#cache:
+#    directories:
+#        - $HOME/.nwjs-download/
 
 before_install:
-    - sudo apt-get -qq install -y wine
+    - sudo sed -i -e 's/deb http/deb [arch=amd64] http/' /etc/apt/sources.list.d/google-chrome.list /opt/google/chrome/cron/google-chrome
+    - sudo dpkg --add-architecture i386
+    - sudo apt-get update
+#    - sudo apt-get -qq install -y wine
+    - sudo apt-get -qq install -y libexif-dev:i386
+    - sudo apt-get -qq install -y chromium-browser:i386
 
 before_script:
     - export DISPLAY=:99.0

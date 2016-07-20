@@ -1,7 +1,19 @@
 
 const { existsSync } = require('fs');
-
 const cp = require('child_process');
+
+const DecompressZip = require('decompress-zip');
+
+function ExtractZip(path, destination, callback) {
+
+    const unzip = new DecompressZip(path);
+    unzip.on('error', (err) => callback(err))
+    .on('extract', () => callback(null, destination))
+    .extract({
+        path: destination,
+    });
+
+};
 
 describe('nwb', function() {
 
@@ -25,7 +37,7 @@ describe('nwb', function() {
 
     describe('nwbuild', function() {
 
-        this.timeout(300000);
+        this.timeout(900000);
 
         it('should build in "./temp/build/" as .zip', function(done) {
 
@@ -46,11 +58,69 @@ describe('nwb', function() {
 
         });
 
+        if(process.platform == 'win32') {
+
+            it('should launch and exit with code 233 (win32)', function(done) {
+
+                ExtractZip('./temp/build/nwb-test-v0.0.1-win-ia32.zip', './temp/build/nwb-test-v0.0.1-win-ia32/', (err, destination) => {
+
+                    if(err) throw err;
+
+                    cp.exec('.\\temp\\build\\nwb-test-v0.0.1-win-ia32\\nwb-test.exe 233', {}, (err, stdout, stderr) => {
+
+                        if(err && err.code == 233) return done();
+                        else if(err) throw err;
+                        else throw new Error('ERROR_EXIT_CODE_UNEXPECTED');
+
+                    });
+
+                });
+
+            });
+
+        }
+        else if(process.platform == 'linux') {
+
+            it('should launch and exit with code 233 (linux)', function(done) {
+
+                ExtractZip('./temp/build/nwb-test-v0.0.1-linux-ia32.zip', './temp/build/nwb-test-v0.0.1-linux-ia32/', (err, destination) => {
+
+                    if(err) throw err;
+
+                    cp.exec('./temp/build/nwb-test-v0.0.1-linux-ia32/nwb-test 233', {}, (err, stdout, stderr) => {
+
+                        if(err && err.code == 233) return done();
+                        else if(err) throw err;
+                        else throw new Error('ERROR_EXIT_CODE_UNEXPECTED');
+
+                    });
+
+                });
+
+            });
+
+        }
+        else if(process.platform == 'darwin') {
+
+            it('should decompress (darwin)', function(done) {
+
+                ExtractZip('./temp/build/nwb-test-v0.0.1-osx-x64.zip', './temp/build/nwb-test-v0.0.1-osx-x64/', (err, destination) => {
+
+                    if(err) throw err;
+
+                    done();
+
+                });
+
+            });
+
+        }
+
     });
 
     describe('nwbuild -r', function() {
 
-        this.timeout(60000);
+        this.timeout(300000);
 
         it('should launch and exit with code 233', function(done) {
 

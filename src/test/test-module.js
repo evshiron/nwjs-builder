@@ -11,7 +11,7 @@ describe('module', function() {
 
     describe('nwbuild#build', function() {
 
-        this.timeout(300000);
+        this.timeout(900000);
 
         it('should build in "./temp/build/"', function(done) {
 
