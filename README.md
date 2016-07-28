@@ -152,10 +152,13 @@ Platform-specified and configuration-rich features like making `.dmg` (Mac OS X 
 See also:
 
 * [CONTRIBUTING](./CONTRIBUTING.md)
-
-
 * [evshiron/node-async-flow](https://github.com/evshiron/node-async-flow)
 * [evshiron/nwjs-download](https://github.com/evshiron/nwjs-download)
+
+## Mirrors
+
+There are some mirrors available on the Internet, which are supported with `--mirror` option:
+* https://cnpmjs.org/mirrors/nwjs/
 
 ## License
 
