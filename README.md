@@ -158,7 +158,7 @@ See also:
 ## Mirrors
 
 There are some mirrors available on the Internet, which are supported with `--mirror` option:
-* https://cnpmjs.org/mirrors/nwjs/
+* https://npm.taobao.org/mirrors/nwjs/
 
 ## License
 
