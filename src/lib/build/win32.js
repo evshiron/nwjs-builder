@@ -120,8 +120,8 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
                 }
             };
 
-            assert(this.manifest.name);
-            assert(this.manifest.version);
+            assert(this.manifest.name, "Missing name in package.json");
+            assert(this.manifest.version, "Missing version in package.json");
 
             rcOptions['version-string'].ProductName = this.manifest.name;
             rcOptions['product-version'] = this.manifest.version;
