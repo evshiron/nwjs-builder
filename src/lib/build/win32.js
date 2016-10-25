@@ -5,7 +5,6 @@ const { dirname, join, resolve } = require('path');
 const { rename } = require('fs');
 const { readJson, emptyDir, copy, remove } = require('fs-extra');
 const { exec } = require('child_process');
-const assert = require('assert');
 
 const format = require('string-template');
 
@@ -120,8 +119,13 @@ const BuildWin32Binary = (path, binaryDir, version, platform, arch, {
                 }
             };
 
-            assert(this.manifest.name);
-            assert(this.manifest.version);
+            if(!this.manifest.name) {
+                return callback(new Error('ERROR_MANIFEST_NO_NAME'));
+            }
+
+            if(!this.manifest.version) {
+                return callback(new Error('ERROR_MANIFEST_NO_VERSION'));
+            }
 
             rcOptions['version-string'].ProductName = this.manifest.name;
             rcOptions['product-version'] = this.manifest.version;
