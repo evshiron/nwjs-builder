@@ -209,14 +209,26 @@ const InstallFFmpeg = (sourceDir, destinationDir, platform, callback) => {
 
 };
 
-const LaunchExecutable = (executable, args, callback) => {
+const LaunchExecutable = (executable, args, detached, callback) => {
 
-    const cp = spawn(executable, args);
+    const cp = spawn(executable, args, {
+        stdio: detached ? 'ignore' : 'pipe',
+        detached: detached
+    });
 
     if(!cp) return callback(new Error('ERROR_LAUNCH_FAILED'));
 
-    cp.stdout.on('data', (data) => console.log(data.toString()));
-    cp.stderr.on('data', (data) => console.error(data.toString()));
+    if(detached) {
+
+        cp.unref();
+
+    }
+    else {
+
+        cp.stdout.on('data', (data) => console.log(data.toString()));
+        cp.stderr.on('data', (data) => console.error(data.toString()));
+
+    }
 
     cp.on('close', (code) => callback(null, code));
 

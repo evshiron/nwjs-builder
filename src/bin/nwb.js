@@ -66,6 +66,7 @@ commander.command('nwbuild [PATH_OR_ARGS...]')
 .option('--production', 'Reinstall dependencies for production purpose.')
 .option('--win-ico <WIN_ICO>', 'Specify .ico for Windows build.')
 .option('--mac-icns <MAC_ICNS>', 'Specify .icns for Mac OS X build.')
+.option('--detached', 'For "--run", NWB exits after launching nw.js.')
 //.option('-f,--forceDownload', 'Force download of NW.js')
 //.option('--cacheDir', 'The cache folder')
 //.option('--quiet', 'Disables logging')
@@ -85,7 +86,8 @@ commander.command('nwbuild [PATH_OR_ARGS...]')
         production: command.production,
         winIco: command.winIco,
         macIcns: command.macIcns,
-        mirror: command.mirror
+        mirror: command.mirror,
+        detached: command.detached
     };
 
     NWB.commands.nwbuild(pathOrArgs, options);

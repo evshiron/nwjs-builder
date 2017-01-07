@@ -254,13 +254,33 @@ const NwBuilderRun = (args, options, callback) => {
 
         const executable = NWB.GetExecutable(workingDir, this.platform);
 
-        [err, code] = yield NWB.LaunchExecutable(executable, args, cb.expect(2));
+        if(options.detached) {
 
-        if(err) {
-            return callback(err);
+            NWB.LaunchExecutable(executable, args, true, (err, code) => {
+
+                if(err) {
+                    return callback(err);
+                }
+
+            });
+
+            // FIXME: If we end too fast, the nw.js process might crash.
+            yield setTimeout(cb.single, 1000);
+
+            console.log(`nwjs-builder exits without waiting for nw.js process.`);
+
         }
+        else {
 
-        console.log(`nw.js exits with code ${ code }.`);
+            [err, code] = yield NWB.LaunchExecutable(executable, args, false, cb.expect(2));
+
+            if(err) {
+                return callback(err);
+            }
+
+            console.log(`nw.js exits with code ${ code }.`);
+
+        }
 
         callback(null, code);
 
