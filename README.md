@@ -70,6 +70,7 @@ $ nwb nwbuild -h
     --production                              Reinstall dependencies for production purpose.
     --win-ico <WIN_ICO>                       Specify .ico for Windows build.
     --mac-icns <MAC_ICNS>                     Specify .icns for Mac OS X build.
+    --detached                                For "--run", NWB exits after launching nw.js.
 
 # Launch application.
 $ nwb nwbuild -v 0.14.4-sdk -r ./build/
