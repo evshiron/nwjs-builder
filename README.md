@@ -6,6 +6,8 @@ Tested to work for node.js [~~0.10/0.11/4.0/~~](https://github.com/evshiron/nwjs
 
 [![NPM](https://nodei.co/npm/nwjs-builder.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/nwjs-builder)
 
+**I would now recommend using [evshiron/nwjs-builder-phoenix](https://github.com/evshiron/nwjs-builder-phoenix).**
+
 ## Features
 
 * Use `http://nwjs.io/versions.json` (powered by [evshiron/nwjs-download](https://github.com/evshiron/nwjs-download))
